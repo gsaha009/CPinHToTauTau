@@ -5,7 +5,7 @@ FULL: &full_
   era     : 2023
   postfix : PreBPix
   wrapper : true
-  workers : 5
+  workers : 10
   tasks_per_job  : 2
 
   args: &args_
@@ -13,7 +13,7 @@ FULL: &full_
     workflow  : local
     branch    : -1
     # if dummy, version will be set automatically 
-    version   : Run3_2023PreBPix_full_20250523_v1
+    version   : Run3_2023PreBPix_full_20250716
 
     datasets  : &datasets_
       ## == data ==

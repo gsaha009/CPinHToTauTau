@@ -81,14 +81,14 @@ FULL: &full_
       - wzz
       - zzz
       ## == signal ==
-      - h_ggf_tautau_uncorrelated_filter
-      - h_ggf_tautau_uncorrelatedDecay_CPodd_Filtered_ProdAndDecay
-      - h_ggf_tautau_uncorrelatedDecay_MM_Filtered_ProdAndDecay
+      #- h_ggf_tautau_uncorrelated_filter
+      #- h_ggf_tautau_uncorrelatedDecay_CPodd_Filtered_ProdAndDecay
+      #- h_ggf_tautau_uncorrelatedDecay_MM_Filtered_ProdAndDecay
       - h_ggf_tautau_uncorrelatedDecay_SM_Filtered_ProdAndDecay
-      - zh_tautau_uncorrelatedDecay_Filtered
-      - wph_tautau_uncorrelatedDecay_Filtered
-      - wmh_tautau_uncorrelatedDecay_Filtered
-      - h_vbf_tautau_uncorrelatedDecay_Filtered
+      #- zh_tautau_uncorrelatedDecay_Filtered
+      #- wph_tautau_uncorrelatedDecay_Filtered
+      #- wmh_tautau_uncorrelatedDecay_Filtered
+      #- h_vbf_tautau_uncorrelatedDecay_Filtered
 
     processes : &processes_
       - data

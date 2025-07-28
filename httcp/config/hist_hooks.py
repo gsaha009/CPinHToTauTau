@@ -641,9 +641,8 @@ def add_hist_hooks(config: od.Config) -> None:
         # Get the qcd proces, this will be used as the fake process
         qcd_proc = config.get_process("qcd", default=None)
         if not qcd_proc:
-            print("no qcd process")
+            print("no fake") 
             return hists
-
 
         # extract all unique category ids and verify that the axis order is exactly
         # "category -> shift -> variable" which is needed to insert values at the end
@@ -696,13 +695,13 @@ def add_hist_hooks(config: od.Config) -> None:
 
         # Get complete qcd groups
         complete_groups = [name for name, cats in qcd_groups.items() if len(cats) == 2]
-
-        # Nothing to do if there are no complete groups, you need A and B to estimate FF
+    
+        # Nothing to do if there are no complete groups, you need C to apply Fake to D 
         if not complete_groups:
             print("no complete groups")
             return hists
-        
-        # Sum up mc and data histograms, stop early when empty, this is done for all categories
+
+        # Sum up mc and data histograms, stop early when empty
         mc_hists = [h for p, h in hists.items() if p.is_mc and not p.has_tag("signal")]
         data_hists = [h for p, h in hists.items() if p.is_data]
         if not mc_hists or not data_hists:
@@ -734,22 +733,23 @@ def add_hist_hooks(config: od.Config) -> None:
                 h[{"category": hist.loc(group[region_name].id)}]
                 if group[region_name].id in h.axes["category"]
                 else hist.Hist(*[axis for axis in (h[{"category": [0]}] * 0).axes if axis.name != 'category'])
-            )
+            ) 
 
-            # # Get the corresponding histograms and convert them to number objects,
-            ss_iso_mc = hist_to_num(get_hist(mc_hist, "ss_iso"), "ss_iso_mc") # MC in region A
-            ss_iso_data = hist_to_num(get_hist(data_hist, "ss_iso"), "ss_iso_data") # Data in region A
-            ss_noniso_mc  = hist_to_num(get_hist(mc_hist, "ss_noniso"), "ss_noniso_mc") # MC in region B
-            ss_noniso_data = hist_to_num(get_hist(data_hist, "ss_noniso"), "ss_noniso_data") # Data in region B
+            # Get the corresponding histograms and convert them to number objects,
+            os_noniso_mc  = hist_to_num(get_hist(mc_hist, "os_noniso"), "os_noniso_mc")
+            os_noniso_data = hist_to_num(get_hist(data_hist, "os_noniso"), "os_noniso_data")
 
+            ## DATA - MC of region C (FF are already apply to them)
+            fake_hist = os_noniso_data - os_noniso_mc
 
-            ss_iso_data_minus_mc = (ss_iso_data - ss_iso_mc)[:, None] # Data - MC in region A
-            ss_noniso_data_minus_mc = (ss_noniso_data - ss_noniso_mc)[:, None] # Data - MC in region B
+            # combine uncertainties and store values in bare arrays
+            fake_hist_values = fake_hist()
+            fake_hist_variances = fake_hist(sn.UP, sn.ALL, unc=True)**2
 
-            # create histo for them
-            ss_iso_data_minus_mc_values = np.squeeze(np.nan_to_num(ss_iso_data_minus_mc()), axis=0) # get the values of the cat A
-            ss_iso_data_minus_mc_variances = ss_iso_data_minus_mc(sn.UP, sn.ALL, unc=True)**2
-            ss_iso_data_minus_mc_variances = ss_iso_data_minus_mc_variances[0]
+            # Guaranty positive values of fake_hist
+            neg_int_mask = fake_hist_values <= 0
+            fake_hist_values[neg_int_mask] = 1e-5
+            fake_hist_variances[neg_int_mask] = 0
 
             ## Use fake_hist as qcd histogram for category D (os_iso)
             cat_axis = qcd_hist.axes["category"]
@@ -1141,6 +1141,13 @@ def add_hist_hooks(config: od.Config) -> None:
                     f"could not find index of bin on 'category' axis of qcd histogram {mc_hist} "
                     f"for category {group.os_iso}",
                 )
+
+
+        # Save tne qcd histogram in a pickle file
+        hname = qcd_hist.axes[2].name
+        with open(f"{path}/qcd_{hname}.pkl", "wb") as f:
+            pickle.dump(qcd_hist, f)
+            
           
         return hists
 
