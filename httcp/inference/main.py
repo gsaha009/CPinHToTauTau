@@ -18,70 +18,70 @@ def main(self):
         "cat__tautau__SR__nodeHiggs__pi_pi",
         config_category="tautau__real_1__hadD__nodeHiggs_tautau__pi_pi",
         config_variable="PhiCP_IPIP",
-        config_data_datasets=["data_tau_D"],
+        config_data_datasets=["data_tau_C"],
         mc_stats=True,
     )
     self.add_category(
         "cat__tautau__SR__nodeHiggs__pi_rho",
         config_category="tautau__real_1__hadD__nodeHiggs_tautau__pi_rho",
         config_variable="PhiCP_IPDP",
-        config_data_datasets=["data_tau_D"],
+        config_data_datasets=["data_tau_C"],
         mc_stats=True,
     )
     self.add_category(
         "cat__tautau__SR__nodeHiggs__pi_a1dm2",
         config_category="tautau__real_1__hadD__nodeHiggs_tautau__pi_a1dm2",
         config_variable="PhiCP_IPDP",
-        config_data_datasets=["data_tau_D"],
+        config_data_datasets=["data_tau_C"],
         mc_stats=True,
     )
     self.add_category(
         "cat__tautau__SR__nodeHiggs__pi_a1dm10",
         config_category="tautau__real_1__hadD__nodeHiggs_tautau__pi_a1dm10",
         config_variable="PhiCP_IPDP",
-        config_data_datasets=["data_tau_D"],
+        config_data_datasets=["data_tau_C"],
         mc_stats=True,
     )
     self.add_category(
         "cat__tautau__SR__nodeHiggs__rho_rho",
         config_category="tautau__real_1__hadD__nodeHiggs_tautau__rho_rho",
         config_variable="PhiCP_DPDP",
-        config_data_datasets=["data_tau_D"],
+        config_data_datasets=["data_tau_C"],
         mc_stats=True,
     )
     self.add_category(
         "cat__tautau__SR__nodeHiggs__rho_a1dm2",
         config_category="tautau__real_1__hadD__nodeHiggs_tautau__rho_a1dm2",
         config_variable="PhiCP_DPDP",
-        config_data_datasets=["data_tau_D"],
+        config_data_datasets=["data_tau_C"],
         mc_stats=True,
     )
     self.add_category(
         "cat__tautau__SR__nodeHiggs__rho_a1dm10",
         config_category="tautau__real_1__hadD__nodeHiggs_tautau__rho_a1dm10",
         config_variable="PhiCP_DPDP",
-        config_data_datasets=["data_tau_D"],
+        config_data_datasets=["data_tau_C"],
         mc_stats=True,
     )
     self.add_category(
         "cat__tautau__SR__nodeHiggs__a1dm2_a1dm2",
         config_category="tautau__real_1__hadD__nodeHiggs_tautau__a1dm2_a1dm2",
         config_variable="PhiCP_DPDP",
-        config_data_datasets=["data_tau_D"],
+        config_data_datasets=["data_tau_C"],
         mc_stats=True,
     )
     self.add_category(
         "cat__tautau__SR__nodeHiggs__a1dm2_a1dm10",
         config_category="tautau__real_1__hadD__nodeHiggs_tautau__a1dm2_a1dm10",
         config_variable="PhiCP_DPDP",
-        config_data_datasets=["data_tau_D"],
+        config_data_datasets=["data_tau_C"],
         mc_stats=True,
     )
     self.add_category(
         "cat__tautau__SR__nodeHiggs__a1dm10_a1dm10",
         config_category="tautau__real_1__hadD__nodeHiggs_tautau__a1dm10_a1dm10",
         config_variable="PhiCP_DPDP",
-        config_data_datasets=["data_tau_D"],
+        config_data_datasets=["data_tau_C"],
         mc_stats=True,
     )
 
@@ -92,18 +92,18 @@ def main(self):
     self.add_process(
         "DY",
         config_process="dy",
-        config_mc_datasets=["dy_lep_m*","ww","wz","zz","www","wwz","wzz","zzz","tt_*","st_*"],
+        config_mc_datasets=["dy_lep_m*"],
     )
-    #self.add_process(
-    #    "Top",
-    #    config_process="top",
-    #    config_mc_datasets=["tt_*","st_*"],
-    #)
-    #self.add_process(
-    #    "VV",
-    #    config_process="multiboson",
-    #    config_mc_datasets=["ww","wz","zz","www","wwz","wzz","zzz"],
-    #)
+    self.add_process(
+        "Top",
+        config_process="top",
+        config_mc_datasets=["tt_*","st_*"],
+    )
+    self.add_process(
+        "VV",
+        config_process="multiboson",
+        config_mc_datasets=["ww","wz","zz","www","wwz","wzz","zzz"],
+    )
     self.add_process(
         "QCD",
         config_process="qcd",
