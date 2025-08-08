@@ -9,6 +9,7 @@ import functools
 import itertools
 
 from columnflow.calibration import Calibrator, calibrator
+from columnflow.calibration.util import propagate_met
 from columnflow.production.cms.seeds import deterministic_seeds
 from columnflow.util import maybe_import, InsertableDict
 from columnflow.columnar_util import set_ak_column, flat_np_view
@@ -22,15 +23,14 @@ set_ak_column_f32 = functools.partial(set_ak_column, value_type=np.float32)
 logger = law.logger.get_logger(__name__)
 
 @calibrator(
-    uses={f"Tau.{var}" for var in [
-                "pt","eta","mass", "decayMode", "genPartFlav"
-                ] 
-    },
+    uses={"nTau"} | {f"Tau.{var}" for var in ["pt","eta","phi","mass","charge","decayMode", "decayModePNet", "genPartFlav"]} | {f"PuppiMET.{var}" for var in ["pt", "phi"]},
     produces={
         "Tau.pt_no_tes", "Tau.mass_no_tes",
         "Tau.pt_etau", "Tau.mass_etau",
         "Tau.pt_mutau", "Tau.mass_mutau",
         "Tau.pt_tautau", "Tau.mass_tautau",
+        "PuppiMET.pt_no_tes", "PuppiMET.phi_no_tes",
+        "PuppiMET.pt", "PuppiMET.phi",
     },
     mc_only=True,
 )
@@ -44,8 +44,12 @@ def tau_energy_scale(self: Calibrator, events: ak.Array, **kwargs) -> ak.Array:
     pt = flat_np_view(events.Tau.pt, axis=1)
     mass = flat_np_view(events.Tau.mass, axis=1)
     abseta = flat_np_view(abs(events.Tau.eta), axis=1)
-    dm = flat_np_view(events.Tau.decayMode, axis=1)
+    dm = flat_np_view(events.Tau.decayModePNet, axis=1)
     match = flat_np_view(events.Tau.genPartFlav, axis=1)
+
+    tausum_before = events.Tau.sum(axis=1)
+    
+    #from IPython import embed; embed(); exit()
     
     syst = "nom" # TODO define this systematics inside config file
     #Get working points of the DeepTau tagger
@@ -58,9 +62,9 @@ def tau_energy_scale(self: Calibrator, events: ak.Array, **kwargs) -> ak.Array:
 
     arr_shape = ak.num(events.Tau.pt, axis=1)
     
-    mask2prong = ((dm != 5) & (dm != 6))
+    mask2prong = ((dm >= 0) & (dm != 5) & (dm != 6))
 
-    logger.critical("TES_Nom = 0 will be replaced by TES_Nom = 0.8 for safety == Bug in 2023PostBPix DM0 both WPs Tight for 20.0 < pT < 30.0 GeV")
+    #logger.critical("TES_Nom = 0 will be replaced by TES_Nom = 0.8 for safety == Bug in 2023PostBPix DM0 both WPs Tight for 20.0 < pT < 30.0 GeV")
 
     tes_args = lambda events, mask, deep_tau_tagger, syst: (pt[mask],
                                                             abseta[mask],
@@ -133,12 +137,31 @@ def tau_energy_scale(self: Calibrator, events: ak.Array, **kwargs) -> ak.Array:
         logger.warning(f"Calibration with tau-tau WPs : {n} taus with nom tes = 0 for tau pt > 20 GeV")
     tes_nom = np.where(tes_nom == 0.0, 0.8, tes_nom)
 
-    events = set_ak_column_f32(events, "Tau.pt_tautau", ak.unflatten(pt * tes_nom, arr_shape))
+    pt_tautau = ak.unflatten(pt * tes_nom, arr_shape)
+    events = set_ak_column_f32(events, "Tau.pt_tautau", pt_tautau)
     events = set_ak_column_f32(events, "Tau.mass_tautau", ak.unflatten(mass * tes_nom, arr_shape))
     # CAREFUL
     #events = set_ak_column_f32(events, "Tau.pt_tautau", ak.unflatten(pt, arr_shape))
     #events = set_ak_column_f32(events, "Tau.mass_tautau", ak.unflatten(mass, arr_shape))
 
+    # propagate to met
+    events = set_ak_column_f32(events, "PuppiMET.pt_no_tes", events.PuppiMET.pt)
+    events = set_ak_column_f32(events, "PuppiMET.phi_no_tes", events.PuppiMET.phi)
+    
+    #from IPython import embed; embed()
+    # propagate changes to MET
+    met_pt, met_phi = propagate_met(
+        tausum_before.pt,
+        tausum_before.phi,
+        events.Tau.pt_tautau,
+        events.Tau.phi,
+        events.PuppiMET.pt,
+        events.PuppiMET.phi,
+    )
+    events = set_ak_column_f32(events, "PuppiMET.pt", met_pt)
+    events = set_ak_column_f32(events, "PuppiMET.phi", met_phi)
+
+    
     stop = time.time()
     if self.config_inst.x.verbose.calibration.tau:
         print(f"tau energy correction takes : {round((stop - start)/60.0, 3)} min")
@@ -166,12 +189,13 @@ def tau_energy_scale_setup(
     correctionlib.highlevel.Correction.__call__ = correctionlib.highlevel.Correction.evaluate
     
     correction_set = correctionlib.CorrectionSet.from_string(
-        #bundle.files.tau_correction.load(formatter="gzip").decode("utf-8"),
-        bundle.files.tau_sf.load(formatter="gzip").decode("utf-8"),
+        #bundle.files.tau_sf.load(formatter="gzip").decode("utf-8"),
+        bundle.files.tes_sf.load(formatter="gzip").decode("utf-8"),
     )
     #tagger_name = self.config_inst.x.deep_tau.tagger
     tagger_name = self.config_inst.x.deep_tau_tagger
-    self.tes_corrector = correction_set["tau_energy_scale"]
+    #self.tes_corrector = correction_set["tau_energy_scale"]
+    self.tes_corrector = correction_set[f"tau_es_dm_{tagger_name}_{self.config_inst.campaign.x.year}_{self.config_inst.campaign.x.postfix}"]
 
 
 @calibrator(
