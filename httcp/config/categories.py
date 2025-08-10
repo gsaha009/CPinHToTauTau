@@ -155,10 +155,10 @@ def add_DM_categories(config: od.Config) -> None:
 
     
 @call_once_on_config()
-def add_etau_mutau_categories(config: od.Config) -> None:
+def add_mutau_categories(config: od.Config) -> None:
     """
     categories = {
-        "channel": [config.get_category("etau"), config.get_category("mutau")],
+        "channel": [config.get_category("mutau")],
         "RorF"   : [config.get_category("real_2")],
         "abcd"   : [config.get_category("lepA"),  config.get_category("lepB"),
                     config.get_category("lepA0"), config.get_category("lepB0"),
@@ -172,7 +172,7 @@ def add_etau_mutau_categories(config: od.Config) -> None:
     }
     """
     categories = {
-        "channel": [config.get_category("mutau"), config.get_category("etau")],
+        "channel": [config.get_category("mutau")],
         "RorF"   : [config.get_category("real_2")],
         "abcd"   : [
             config.get_category("DRnum"),
@@ -185,7 +185,7 @@ def add_etau_mutau_categories(config: od.Config) -> None:
                     config.get_category("a1dm10_2"),                    
                     config.get_category("a1dm11_2")],
     }
-    logger.info("etau_and_mutau_categories")
+    logger.info("mutau_categories")
     n = create_category_combinations(config,
                                      categories,
                                      name_fn=name_fn,
@@ -194,6 +194,49 @@ def add_etau_mutau_categories(config: od.Config) -> None:
     logger.info(f"{n} categories have been created")
 
 
+
+@call_once_on_config()
+def add_etau_categories(config: od.Config) -> None:
+    """
+    categories = {
+        "channel": [config.get_category("etau")],
+        "RorF"   : [config.get_category("real_2")],
+        "abcd"   : [config.get_category("lepA"),  config.get_category("lepB"),
+                    config.get_category("lepA0"), config.get_category("lepB0"),
+                    config.get_category("lepA1"), config.get_category("lepB1"),
+                    config.get_category("lepC"),  config.get_category("lepD")],
+        "cp"     : [config.get_category("pi_2"),
+                    config.get_category("rho_2"),
+                    config.get_category("a1dm2_2"),
+                    config.get_category("a1dm10_2"),                    
+                    config.get_category("a1dm11_2")],
+    }
+    """
+    categories = {
+        "channel": [config.get_category("etau")],
+        "RorF"   : [config.get_category("real_2")],
+        "abcd"   : [
+            config.get_category("DRnum"),
+            config.get_category("DRden"),
+            config.get_category("AR"),
+            config.get_category("SR")],
+        "cp"     : [config.get_category("pi_2"),
+                    config.get_category("rho_2"),
+                    config.get_category("a1dm2_2"),
+                    config.get_category("a1dm10_2"),                    
+                    config.get_category("a1dm11_2")],
+    }
+    logger.info("etau_categories")
+    n = create_category_combinations(config,
+                                     categories,
+                                     name_fn=name_fn,
+                                     kwargs_fn=kwargs_fn,
+                                     skip_existing=False)
+    logger.info(f"{n} categories have been created")
+
+
+    
+"""
 @call_once_on_config()
 def add_tautau_categories(config: od.Config) -> None:
     categories = {
@@ -235,18 +278,18 @@ def add_tautau_categories(config: od.Config) -> None:
                                      kwargs_fn=kwargs_fn,
                                      skip_existing=False)
     logger.info(f"{n} categories have been created")
-
+"""
 
     
 @call_once_on_config()
-def add_tautau_real_categories(config: od.Config) -> None:
+def add_tautau_categories(config: od.Config) -> None:
     categories = {
         "channel": [config.get_category("tautau")],
         "RorF"   : [config.get_category("real_1")],
         "abcd"   : [
-            #config.get_category("hadA"),  config.get_category("hadB"),
-            #config.get_category("hadA0"), config.get_category("hadB0"),
-            #config.get_category("hadC0"), config.get_category("hadD0"),
+            config.get_category("hadA"),  config.get_category("hadB"),
+            config.get_category("hadA0"), config.get_category("hadB0"),
+            config.get_category("hadC0"), config.get_category("hadD0"),
             config.get_category("hadC"),  config.get_category("hadD"),
         ],
         "nj"     : [
@@ -254,21 +297,21 @@ def add_tautau_real_categories(config: od.Config) -> None:
             config.get_category("has_1j"),
             config.get_category("has_2j"),
         ],
-        "xgb"    : [
-            config.get_category("nodeDY_tautau"),
-            config.get_category("nodeFake_tautau"),
-            config.get_category("nodeHiggs_tautau"),
-        ],
+        #"xgb"    : [
+        #    config.get_category("nodeDY_tautau"),
+        #    config.get_category("nodeFake_tautau"),
+        #    config.get_category("nodeHiggs_tautau"),
+        #],
         "dm"     : [
             config.get_category("pi_1"),
             config.get_category("rho_1"),
             config.get_category("a1dm2_1"),
             config.get_category("a1dm10_1"),
-            config.get_category("a1dm11_1"),
+            #config.get_category("a1dm11_1"),
         ],
     }
     
-    logger.info("tautau_real_categories")
+    logger.info("tautau_categories")
     n = create_category_combinations(config,
                                      categories,
                                      name_fn=name_fn,
@@ -362,18 +405,18 @@ def add_categories(config: od.Config) -> None:
     """
     add_common_categories(config)
     
-    #add_njet_categories(config)
+    add_njet_categories(config)
     add_RealOrFake_categories(config)
     
     add_ABCD_categories(config)
     add_DM_categories(config)
 
-    add_classifier_categories(config)
+    #add_classifier_categories(config)
     
-    #add_etau_mutau_categories(config)
-    ##add_tautau_categories(config)
+    add_mutau_categories(config)
+    add_tautau_categories(config)
     ##add_tautau_real_categories(config)
-    add_tautau_phiCP_categories(config)
+    #add_tautau_phiCP_categories(config)
     ###add_test_categories(config)
     
     #all_cats = [cat.name for cat, _, _ in config.walk_categories()]

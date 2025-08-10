@@ -115,7 +115,8 @@ def add_jet_features(cfg: od.Config) -> None:
     cfg.add_variable(
         name="n_jet",
         expression="n_jet",
-        binning=(11, -0.5, 10.5),
+        #binning=(11, -0.5, 10.5),
+        binning=(10, 0, 10),
         x_title="Number of jets",
         discrete_x=True,
     )
@@ -421,7 +422,8 @@ def add_hcand_features(cfg: od.Config) -> None:
         name="hcand_invm",
         expression="hcand_invm",
         null_value=EMPTY_FLOAT,
-        binning=(40, 0.0, 200.0),
+        binning=(50, 0.0, 400.0),
+        #binning=(50, 0.0, 200.0),
         unit="GeV",
         x_title=r"$visible mass$",
     )

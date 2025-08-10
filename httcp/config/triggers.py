@@ -737,7 +737,9 @@ def add_triggers_run3_2022(config: od.Config, postfix: str) -> None:
                 TriggerLeg(
                     pdg_id=11,
                     min_pt=31.0,
+                    min_pt_online=30.0,
                     max_abseta=2.1,
+                    max_abseta_online=2.3,
                     # filter names:
                     # hltEle30WPTightGsfTrackIsoFilter
                     trigger_bits=2**1,  # 1e (WPTight) (bit 1)
@@ -753,7 +755,9 @@ def add_triggers_run3_2022(config: od.Config, postfix: str) -> None:
                 TriggerLeg(
                     pdg_id=11,
                     min_pt=25.0, # 26 -> Imperial
+                    min_pt_online=24.0,
                     max_abseta=2.1,
+                    max_abseta_online=2.1,
                     # filter names:
                     # hltOverlapFilterIsoEle24IsoTau30WPTightGsfCaloJet5
                     # hltHpsOverlapFilterIsoEle24WPTightGsfLooseETauWPDeepTauPFTau30
@@ -762,7 +766,9 @@ def add_triggers_run3_2022(config: od.Config, postfix: str) -> None:
                 TriggerLeg(
                     pdg_id=15,
                     min_pt=35.0,
+                    min_pt_online=30.0,
                     max_abseta=2.1,
+                    max_abseta_online=2.1,
                     # filter names:
                     # hltOverlapFilterIsoEle24IsoTau30WPTightGsfCaloJet5
                     # hltHpsOverlapFilterIsoEle24WPTightGsfLooseETauWPDeepTauPFTau30
@@ -779,8 +785,10 @@ def add_triggers_run3_2022(config: od.Config, postfix: str) -> None:
             legs=[
                 TriggerLeg(
                     pdg_id=13,
-                    min_pt=25.0,
+                    min_pt=26.0,
+                    min_pt_online=24.0,
                     max_abseta=2.4,
+                    max_abseta_online=2.4,
                     # filter names:
                     # hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p08
                     trigger_bits=2**1 + 2**3,  # Iso (bit 1) + 1mu (bit 3)
@@ -800,7 +808,9 @@ def add_triggers_run3_2022(config: od.Config, postfix: str) -> None:
                 TriggerLeg(
                     pdg_id=13,
                     min_pt=21.0,
+                    min_pt_online=20.0,
                     max_abseta=2.1,
+                    max_abseta_online=2.1,
                     # filter names:
                     # 
                     trigger_bits=2**6,
@@ -808,7 +818,9 @@ def add_triggers_run3_2022(config: od.Config, postfix: str) -> None:
                 TriggerLeg(
                     pdg_id=15,
                     min_pt=32.0,
+                    min_pt_online=27.0,
                     max_abseta=2.1,
+                    max_abseta_online=2.1,
                     # filter names:
                     # hltHpsOverlapFilterIsoMu20LooseMuTauWPDeepTauPFTau27L1Seeded
                     trigger_bits=2**13,
@@ -828,7 +840,9 @@ def add_triggers_run3_2022(config: od.Config, postfix: str) -> None:
                 TriggerLeg(
                     pdg_id=15,
                     min_pt=40.0,
+                    min_pt_online=35.0,
                     max_abseta=2.1,
+                    max_abseta_online=2.1,
                     # filter names:
                     # hltHpsSelectedPFTausMediumDitauWPDeepTau
                     # hltHpsDoublePFTau35MediumDitauWPDeepTauL1HLTMatched
@@ -838,7 +852,9 @@ def add_triggers_run3_2022(config: od.Config, postfix: str) -> None:
                 TriggerLeg(
                     pdg_id=15,
                     min_pt=40.0,
+                    min_pt_online=35.0,
                     max_abseta=2.1,
+                    max_abseta_online=2.1,
                     # filter names:
                     # hltHpsDoublePFTau35MediumDitauWPDeepTauDz02 (Deeptau + HPS)
                     # 3 => DeepTau no spec WP, 11 => di-tau 
@@ -860,21 +876,36 @@ def add_triggers_run3_2022(config: od.Config, postfix: str) -> None:
                 TriggerLeg(
                     pdg_id=15,
                     min_pt=35.0,
+                    min_pt_online=30.0,
                     max_abseta=2.1,
+                    max_abseta_online=2.1,
                     # filter names:
                     # hltHpsOverlapFilterDeepTauDoublePFTau30PFJet60
                     # 14 => di-tau + PFJet
-                    trigger_bits=2**14,
+                    trigger_bits=2**3 + 2**14,
                 ),
                 TriggerLeg(
                     pdg_id=15,
                     min_pt=35.0,
+                    min_pt_online=30.0,
                     max_abseta=2.1,
+                    max_abseta_online=2.1,
                     # filter names:
                     # hltHpsOverlapFilterDeepTauDoublePFTau30PFJet60
                     # 14 => di-tau + PFJet
-                    trigger_bits=2**14,
+                    trigger_bits=2**3 + 2**14,
                 ),
+                TriggerLeg(
+                    pdg_id=1,
+                    min_pt=60.0,
+                    min_pt_online=60.0,
+                    max_abseta=4.7,
+                    max_abseta_online=4.9,
+                    # filter names:
+                    # hltHpsOverlapFilterDeepTauDoublePFTau30PFJet60
+                    # 14 => di-tau + PFJet
+                    trigger_bits=2**17,
+                ),                
             ],
             tags={"cross_trigger", "cross_tau_tau_jet", "channel_tau_tau"},
         ),
@@ -947,7 +978,7 @@ def add_triggers_run3_2023(config: od.Config, postfix: str) -> None:
             legs=[
                 TriggerLeg(
                     pdg_id=13,
-                    min_pt=25.0,
+                    min_pt=26.0,
                     min_pt_online=24.0,
                     max_abseta=2.4,
                     max_abseta_online=2.4,
