@@ -12,7 +12,7 @@ from columnflow.production import Producer, producer
 from columnflow.util import maybe_import, InsertableDict
 from columnflow.columnar_util import set_ak_column
 
-from httcp.util import transverse_mass, IF_RUN2, IF_RUN3, IF_DATASET_IS_DY,IF_DATASET_IS_W
+from httcp.util import transverse_mass, IF_RUN2, IF_RUN3, IF_DATASET_IS_DY_M50,IF_DATASET_IS_W
 
 np = maybe_import("numpy")
 ak = maybe_import("awkward")
@@ -140,10 +140,10 @@ def process_ids_w_setup(
 # ################################## #
 @producer(
     uses={
-        IF_DATASET_IS_DY("LHE.NpLO"), IF_DATASET_IS_DY("LHE.Njets"),
+        IF_DATASET_IS_DY_M50("LHE.NpLO"), IF_DATASET_IS_DY_M50("LHE.Njets"),
     },
     produces={
-        IF_DATASET_IS_DY("process_id"),
+        IF_DATASET_IS_DY_M50("process_id"),
     },
 )
 def process_ids_dy(self: Producer, events: ak.Array, **kwargs) -> ak.Array:

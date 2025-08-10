@@ -205,7 +205,7 @@ def hcand_features(
         category_ids,
         build_abcd_masks,
         "channel_id",
-        ff_weight,
+        #ff_weight,
         "process_id",
         classify_events,
     },
@@ -240,7 +240,7 @@ def hcand_features(
         #"trigger_ids",
         category_ids,
         build_abcd_masks,
-        ff_weight,
+        #ff_weight,
         "process_id",
         classify_events,        
     },
@@ -289,7 +289,7 @@ def main(self: Producer, events: ak.Array, **kwargs) -> ak.Array:
 
     if self.dataset_inst.is_mc:
         # allow stitching is applicable only when datasets are DY or wjets, only if the stitching booleans are true in config
-        allow_stitching = bool(ak.any([(self.dataset_inst.has_tag("is_dy") and self.config_inst.x.allow_dy_stitching),
+        allow_stitching = bool(ak.any([(self.dataset_inst.has_tag("is_dy_m50") and self.config_inst.x.allow_dy_stitching),
                                        (self.dataset_inst.has_tag("is_w") and self.config_inst.x.allow_w_stitching)]))
         #from IPython import embed; embed()
         if allow_stitching:
@@ -333,17 +333,19 @@ def main(self: Producer, events: ak.Array, **kwargs) -> ak.Array:
             #events = self[zpt_reweight](events, **kwargs)
             events = self[zpt_reweight_v2](events, **kwargs)
 
+        #from IPython import embed; embed()
         #processes = self.dataset_inst.processes.names()
-        #if ak.any(['dy_' in proc for proc in processes]):
-        #    logger.warning("splitting Drell-Yan dataset <{self.dataset_inst.name()}>")
-        #    events = self[split_dy](events,**kwargs)
-
+        """
+        if self.dataset_inst.has_tag("is_dy"):
+            logger.warning(f"splitting Drell-Yan dataset <{self.dataset_inst.name()}>")
+            events = self[split_dy](events,**kwargs)
+        """
         # top pt weight
         if self.has_dep(top_pt_weight):
             events = self[top_pt_weight](events, **kwargs)
-
+    """
     events = self[ff_weight](events, **kwargs)        
-
+    """
     # features
     events = self[hcand_mass](events, **kwargs)
     # events = self[mT](events, **kwargs)

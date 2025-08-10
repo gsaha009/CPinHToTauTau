@@ -19,7 +19,6 @@ from columnflow.selection.cms.met_filters import met_filters
 from columnflow.production.processes import process_ids
 from columnflow.production.cms.mc_weight import mc_weight
 from columnflow.production.util import attach_coffea_behavior
-#from columnflow.production.categories import category_ids
 #from columnflow.production.cms.top_pt_weight import gen_parton_top
 
 from columnflow.util import maybe_import
@@ -39,8 +38,8 @@ from httcp.selection.higgscand import higgscand, higgscandprod
 
 #from httcp.production.main import cutflow_features
 #from httcp.production.weights import scale_mc_weight
-from httcp.production.stitching_LO import process_ids_dy, process_ids_w
-#from httcp.production.stitching_NLO import process_ids_dy, process_ids_w
+from httcp.production.stitching_NLO import process_ids_dy
+from httcp.production.stitching_LO import process_ids_w
 from httcp.production.extra_weights import scale_mc_weight
 from httcp.production.dilepton_features import hcand_mass, mT, rel_charge #TODO: rename mutau_vars -> dilepton_vars
 
@@ -139,7 +138,8 @@ def get_2n_pairs(etau_indices_pair,
         tautau_selection, 
         get_categories,
         extra_lepton_veto, 
-        #double_lepton_veto, 
+        #double_lepton_veto,
+        tau_veto_from_dy,
         match_trigobj,
         increment_stats, 
         custom_increment_stats,
@@ -204,6 +204,10 @@ def main(
     # prepare the selection results that are updated at every step
     results = SelectionResult()
 
+    if self.dataset_inst.has_tag("is_dy_m50"):
+        events, tau_veto_result = self[tau_veto_from_dy](events, **kwargs)
+        results += tau_veto_result
+    
     # add the mc weight --> need to move to calibration main?
     if self.dataset_inst.is_mc:
         events = self[scale_mc_weight](events, **kwargs)
@@ -540,7 +544,8 @@ def main_init(self: Selector) -> None:
         return
 
     self.process_ids_dy: process_ids_dy | None = None
-    if self.dataset_inst.has_tag("is_dy"):
+    #from IPython import embed; embed()
+    if self.dataset_inst.has_tag("is_dy_m50"):
         if self.config_inst.x.allow_dy_stitching:
             #print(f"stitching: {self.config_inst.x.dy_stitching.items()}")
             # check if this dataset is covered by any dy id producer

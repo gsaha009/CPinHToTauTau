@@ -47,8 +47,8 @@ logger = law.logger.get_logger(__name__)
 
 from httcp.config.config_run3 import add_config as add_config_run3
 
-from cmsdb.campaigns.run3_2022_preEE_nano_cp_tau_v14 import campaign_run3_2022_preEE_nano_cp_tau_v14
-from cmsdb.campaigns.run3_2022_postEE_nano_cp_tau_v14 import campaign_run3_2022_postEE_nano_cp_tau_v14
+from cmsdb.campaigns.run3_2022_preEE_nano_cp_tau_v14_nanoprod_2024_v2 import campaign_run3_2022_preEE_nano_cp_tau_v14_nanoprod_2024_v2
+from cmsdb.campaigns.run3_2022_postEE_nano_cp_tau_v14_nanoprod_2024_v2 import campaign_run3_2022_postEE_nano_cp_tau_v14_nanoprod_2024_v2
 from cmsdb.campaigns.run3_2023_preBPix_nano_cp_tau_v14 import campaign_run3_2023_preBPix_nano_cp_tau_v14
 from cmsdb.campaigns.run3_2023_postBPix_nano_cp_tau_v14 import campaign_run3_2023_postBPix_nano_cp_tau_v14
 
@@ -60,9 +60,9 @@ from cmsdb.campaigns.run3_2023_postBPix_nano_cp_tau_v14 import campaign_run3_202
 # and isfull for the full real config                                #
 # ################################################################## #
 campaign_dict = {
-    #"2022preEE"    : {"campaign" : campaign_run3_2022_preEE_nano_cp_tau_v14,    "islimited": False, "isfull": True},
-    #"2022postEE"   : {"campaign" : campaign_run3_2022_postEE_nano_cp_tau_v14,   "islimited": False, "isfull": True},
-    "2023preBPix"  : {"campaign" : campaign_run3_2023_preBPix_nano_cp_tau_v14,  "islimited": False, "isfull": True},
+    "2022preEE"    : {"campaign" : campaign_run3_2022_preEE_nano_cp_tau_v14_nanoprod_2024_v2,    "islimited": False, "isfull": True},
+    "2022postEE"   : {"campaign" : campaign_run3_2022_postEE_nano_cp_tau_v14_nanoprod_2024_v2,   "islimited": False, "isfull": True},
+    #"2023preBPix"  : {"campaign" : campaign_run3_2023_preBPix_nano_cp_tau_v14,  "islimited": False, "isfull": True},
     #"2023postBPix" : {"campaign" : campaign_run3_2023_postBPix_nano_cp_tau_v14, "islimited": False, "isfull": True},
 }
 

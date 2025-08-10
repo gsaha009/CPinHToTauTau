@@ -18,6 +18,9 @@ def stylize_processes(config: od.Config) -> None:
     # recommended cms colors
     cfg.x.colors = DotDict(
         col_h_ggf_htt="#690301",
+        col_h_ggf_htt_cpeven="#D72638",
+        col_h_ggf_htt_cpmix="#1E56A0",
+        col_h_ggf_htt_cpodd="#3CAEA3",
         col_vh_htt="#1b07f0",
         col_h_vbf_htt="#014d06",
         col_tt="#998ec3",
@@ -55,6 +58,18 @@ def stylize_processes(config: od.Config) -> None:
         p.color1 = cfg.x.colors.col_h_ggf_htt
         p.label = r"$H_{ggf} \rightarrow \tau\tau$"
 
+    if (p := config.get_process("h_ggf_htt_cpeven", default=None)):
+        p.color1 = cfg.x.colors.col_h_ggf_htt_cpeven
+        p.label = r"$H_{ggf} \rightarrow \tau\tau$ (CP-even)"
+
+    if (p := config.get_process("h_ggf_htt_cpmix", default=None)):
+        p.color1 = cfg.x.colors.col_h_ggf_htt_cpmix
+        p.label = r"$H_{ggf} \rightarrow \tau\tau$ (CP-mix)"
+
+    if (p := config.get_process("h_ggf_htt_cpodd", default=None)):
+        p.color1 = cfg.x.colors.col_h_ggf_htt_cpodd
+        p.label = r"$H_{ggf} \rightarrow \tau\tau$ (CP-odd)"        
+        
     if (p := config.get_process("h_vbf_htt", default=None)):
         p.color1 = cfg.x.colors.col_h_vbf_htt
         p.label = r"$H_{vbf} \rightarrow \tau\tau$"
