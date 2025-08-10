@@ -3,40 +3,52 @@
 FULL: &full_
   run     : 3
   era     : 2022
-  postfix : PostEE
+  postfix : PreEE
   wrapper : true
   workers : 10
   tasks_per_job  : 2
 
   args: &args_
-    config    : run3_2022_postEE_nano_cp_tau_v14
-    workflow  : local
+    config    : run3_2022_postEE_nano_cp_tau_v14_nanoprod_2024_v2
+    workflow  : htcondor
     branch    : -1
-    version   : Run3_2022PostEE_full_20250523_v1
+    version   : dummy #Run3_2022PostEE_full_20250523_v1
 
     datasets  : &datasets_
       # == data ==
       - data_tau_E
       - data_tau_F
       - data_tau_G
-      #- data_mu_E
-      #- data_mu_F
-      #- data_mu_G
+      - data_mu_E
+      - data_mu_F
+      - data_mu_G
       #- data_e_E
       #- data_e_F
       #- data_e_G
       # == wj ==
       - wj_incl_madgraph
-      #- wj_1j_madgraph
-      #- wj_2j_madgraph
-      #- wj_3j_madgraph
-      #- wj_4j_madgraph    
+      - wj_1j_madgraph
+      - wj_2j_madgraph
+      - wj_3j_madgraph
+      - wj_4j_madgraph    
       # == dy ==
-      - dy_lep_m50_madgraph
-      - dy_lep_m50_1j_madgraph
-      - dy_lep_m50_2j_madgraph
-      - dy_lep_m50_3j_madgraph
-      - dy_lep_m50_4j_madgraph    
+      - dy_lep_m50_amcatnlo
+      - dy_lep_m50_0j_amcatnlo
+      - dy_lep_m50_1j_amcatnlo
+      - dy_lep_m50_2j_amcatnlo
+      - dy_lep_m50_1j_pt40to100_amcatnlo
+      - dy_lep_m50_2j_pt40to100_amcatnlo
+      - dy_lep_m50_1j_pt100to200_amcatnlo
+      - dy_lep_m50_2j_pt100to200_amcatnlo
+      - dy_lep_m50_1j_pt200to400_amcatnlo
+      - dy_lep_m50_2j_pt200to400_amcatnlo
+      - dy_lep_m50_1j_pt400to600_amcatnlo
+      - dy_lep_m50_2j_pt400to600_amcatnlo
+      - dy_lep_m50_1j_pt600toInf_amcatnlo
+      - dy_lep_m50_2j_pt600toInf_amcatnlo
+      - dy_2tau_m50_0j_amcatnlo
+      - dy_2tau_m50_1j_amcatnlo
+      - dy_2tau_m50_2j_amcatnlo
       # == tt ==
       - tt_dl
       - tt_sl
@@ -62,13 +74,11 @@ FULL: &full_
       - wzz
       - zzz    
       # == signal ==
-      #- h_ggf_tautau_uncorrelatedDecay_CPodd_Filtered_ProdAndDecay
-      #- h_ggf_tautau_uncorrelatedDecay_MM_Filtered_ProdAndDecay
       - h_ggf_tautau_uncorrelatedDecay_SM_Filtered_ProdAndDecay
-      #- zh_tautau_uncorrelatedDecay_Filtered
-      #- wph_tautau_uncorrelatedDecay_Filtered
-      #- wmh_tautau_uncorrelatedDecay_Filtered
-      #- h_vbf_tautau_uncorrelatedDecay_Filtered
+      - zh_tautau_uncorrelatedDecay_Filtered
+      - wph_tautau_uncorrelatedDecay_Filtered
+      - wmh_tautau_uncorrelatedDecay_Filtered
+      - h_vbf_tautau_uncorrelatedDecay_Filtered
 
     processes :
       - data
