@@ -90,6 +90,26 @@ def IF_DATASET_IS_DY(
     return None if not func.dataset_inst.has_tag("is_dy") else self.get()
 
 @deferred_column
+def IF_DATASET_IS_DY_M50(
+    self: ArrayFunction.DeferredColumn,
+    func: ArrayFunction,
+) -> Any | set[Any]:
+    if getattr(func, "dataset_inst", None) is None:
+        return self.get()
+    return None if not func.dataset_inst.has_tag("is_dy_m50") else self.get()
+
+
+@deferred_column
+def IF_DATASET_IS_DY_TAUTAU(
+    self: ArrayFunction.DeferredColumn,
+    func: ArrayFunction,
+) -> Any | set[Any]:
+    if getattr(func, "dataset_inst", None) is None:
+        return self.get()
+    return None if not func.dataset_inst.has_tag("is_dy_tautau") else self.get()
+
+
+@deferred_column
 def IF_DATASET_IS_W(
     self: ArrayFunction.DeferredColumn,
     func: ArrayFunction,
@@ -116,7 +136,7 @@ def IF_ALLOW_STITCHING(
 ) -> Any | set[Any]:
     if getattr(func, "dataset_inst", None) is None:
         return self.get()
-    allow_dy = func.dataset_inst.has_tag("is_dy") & func.config_inst.x.allow_dy_stitching
+    allow_dy = func.dataset_inst.has_tag("is_dy_m50") & func.config_inst.x.allow_dy_stitching
     allow_w  = func.dataset_inst.has_tag("is_w") & func.config_inst.x.allow_w_stitching
     #return None if not (func.dataset_inst.has_tag("is_w") | func.dataset_inst.has_tag("is_dy")) else self.get()
     return None if not (allow_dy | allow_w) else self.get()

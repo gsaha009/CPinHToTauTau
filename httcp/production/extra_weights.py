@@ -612,7 +612,7 @@ def classify_events(
         "jdeta"        : jdeta,
         "dijetpt"      : dijetpt,
         "n_jets"       : njets[:,None],
-        "n_bjets"      : nbjets[:,None],
+        #"n_bjets"      : nbjets[:,None],
     }
     # create arrays of feats
     x_flat_feats = {f: ak.to_numpy(a).flatten() for f,a in features.items()}
@@ -620,30 +620,74 @@ def classify_events(
     df = pd.DataFrame(x_flat_feats)
 
     # categorize events
+    df_etau_even = df[is_etau_even].copy()
+    df_etau_odd  = df[is_etau_odd].copy()
+    df_mutau_even = df[is_mutau_even].copy()
+    df_mutau_odd  = df[is_mutau_odd].copy()
     df_tautau_even = df[is_tautau_even].copy()
     df_tautau_odd  = df[is_tautau_odd].copy()
     
     #from IPython import embed; embed()
 
-    #score_tautau = -99.9 * np.ones((np.array(events.channel_id).shape[0], score_tautau_even.shape[-1]), dtype=float)
-    score_tautau = -99.9 * np.ones((np.array(events.channel_id).shape[0], 3), dtype=float)
-    
+    #score_etau = -99.9 * np.ones((np.array(events.channel_id).shape[0], 3), dtype=float)
+    #score_mutau = -99.9 * np.ones((np.array(events.channel_id).shape[0], 3), dtype=float)
+    #score_tautau = -99.9 * np.ones((np.array(events.channel_id).shape[0], 3), dtype=float)
+
+    score = -99.9 * np.ones((np.array(events.channel_id).shape[0], 3), dtype=float)
+
+
+    h1_abs_eta = ak.to_numpy(np.abs(events.hcand.eta[:,0]))
     # Evaluation
+    # ===>> etau : Even
+    if df_etau_even.shape[0] > 0:
+        # adding h1 eta to df
+        df_etau_even.insert(2, 'abs_eta_1', h1_abs_eta[is_etau_even])
+        score_etau_even = self.model_et_even.predict_proba(df_etau_even)
+        score[is_etau_even] = score_etau_even
+    else:
+        logger.warning(f"0 events in df_etau_even")
+    # Odd
+    if df_etau_odd.shape[0] > 0:
+        df_etau_odd.insert(2, 'abs_eta_1', h1_abs_eta[is_etau_odd])
+        score_etau_odd  = self.model_et_odd.predict_proba(df_etau_odd)
+        score[is_etau_odd]  = score_etau_odd
+    else:
+        logger.warning(f"0 events in df_etau_odd")
+
+    # ===>> mutau : Even
+    if df_mutau_even.shape[0] > 0:
+        df_mutau_even.insert(2, 'abs_eta_1', h1_abs_eta[is_mutau_even])
+        score_mutau_even = self.model_mt_even.predict_proba(df_mutau_even)
+        score[is_mutau_even] = score_mutau_even
+    else:
+        logger.warning(f"0 events in df_etau_even")
+    # Odd
+    if df_mutau_odd.shape[0] > 0:
+        df_mutau_odd.insert(2, 'abs_eta_1', h1_abs_eta[is_mutau_odd])        
+        score_mutau_odd  = self.model_mt_odd.predict_proba(df_mutau_odd)
+        score[is_mutau_odd]  = score_mutau_odd
+    else:
+        logger.warning(f"0 events in df_etau_odd")
+
+    # ===>> tautau : Even 
     if df_tautau_even.shape[0] > 0:
-        score_tautau_even = self.model_even.predict_proba(df_tautau_even)
-        score_tautau[is_tautau_even] = score_tautau_even
+        score_tautau_even = self.model_tt_even.predict_proba(df_tautau_even)
+        score[is_tautau_even] = score_tautau_even
     else:
         logger.warning(f"0 events in df_tautau_even")
-
+    # ===>> Odd 
     if df_tautau_odd.shape[0] > 0:
-        score_tautau_odd  = self.model_odd.predict_proba(df_tautau_odd)
-        score_tautau[is_tautau_odd]  = score_tautau_odd
+        score_tautau_odd  = self.model_tt_odd.predict_proba(df_tautau_odd)
+        score[is_tautau_odd]  = score_tautau_odd
     else:
         logger.warning(f"0 events in df_tautau_odd")
+
+    #from IPython import embed; embed()
         
     #score_tautau[is_tautau_even] = score_tautau_even
     #score_tautau[is_tautau_odd]  = score_tautau_odd
-    
+
+    """
     # Score tautau
     # 0: tau, 1: higgs, 2: fake
     score_tautau = ak.from_regular(ak.Array(score_tautau))
@@ -653,7 +697,11 @@ def classify_events(
 
     score = ak.where(is_tautau, score_tautau, score_dummy)
     events = set_ak_column(events, "classifier_score", score)
+    """
 
+    score = ak.from_regular(ak.Array(score)) 
+    events = set_ak_column(events, "classifier_score", score) 
+    
     return events
 
 
@@ -674,13 +722,26 @@ def classify_events_setup(
 ) -> None:
     bundle = reqs["external_files"]
 
+    model_etau_even_json = bundle.files.model_et_EVEN.path
+    model_etau_odd_json  = bundle.files.model_et_ODD.path
+    model_mutau_even_json = bundle.files.model_mt_EVEN.path
+    model_mutau_odd_json  = bundle.files.model_mt_ODD.path
     model_tautau_even_json = bundle.files.model_tt_EVEN.path
     model_tautau_odd_json  = bundle.files.model_tt_ODD.path
 
     import xgboost as xgb
 
-    self.model_even = xgb.XGBClassifier()
-    self.model_even.load_model(model_tautau_even_json)
+    self.model_et_even = xgb.XGBClassifier()
+    self.model_et_even.load_model(model_etau_even_json)
+    self.model_et_odd = xgb.XGBClassifier()
+    self.model_et_odd.load_model(model_etau_odd_json)
 
-    self.model_odd = xgb.XGBClassifier()
-    self.model_odd.load_model(model_tautau_odd_json)
+    self.model_mt_even = xgb.XGBClassifier()
+    self.model_mt_even.load_model(model_mutau_even_json)
+    self.model_mt_odd = xgb.XGBClassifier()
+    self.model_mt_odd.load_model(model_mutau_odd_json)    
+    
+    self.model_tt_even = xgb.XGBClassifier()
+    self.model_tt_even.load_model(model_tautau_even_json)
+    self.model_tt_odd = xgb.XGBClassifier()
+    self.model_tt_odd.load_model(model_tautau_odd_json)

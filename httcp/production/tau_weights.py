@@ -31,25 +31,25 @@ logger = law.logger.get_logger(__name__)
         "single_mu_triggered", "cross_mu_triggered",
         "cross_tau_triggered", "cross_tau_jet_triggered",
         # nano columns
-        "Tau.pt", "Tau.eta", "Tau.genPartFlav", "Tau.decayModeHPS",
+        "Tau.pt", "Tau.eta", "Tau.genPartFlav", "Tau.decayModeHPS", "Tau.decayMode",
         "Jet.pt", "Jet.eta",
     },
     produces={
         "tau_weight",
     } | {
-        f"tau_weight_{unc}_{direction}"
+        f"tau_weight_{direction}"
         for direction in ["up", "down"]
-        for unc in [
-                "jet_dm0", "jet_dm1", "jet_dm10", "e_barrel", "e_endcap",
-                "mu_0p0To0p4", "mu_0p4To0p8", "mu_0p8To1p2", "mu_1p2To1p7", "mu_1p7To2p3",
-        ]
     },
     # only run on mc
     mc_only=True,
     # function to determine the correction file
     get_tau_file=(lambda self, external_files: external_files.tau_sf),
+    # for genuine tauSF from IC
+    get_genuine_tau_file=(lambda self, external_files: external_files.gen_tau_sf), 
     # for jet leg
     get_jetleg_file=(lambda self, external_files: external_files.ditau_jet_trig_sf.path),
+    # trigger SF
+    get_tau_trig_file=(lambda self, external_files: external_files.tau_trig_sf),
     # function to determine the tau tagger name
     get_tau_tagger=(lambda self: self.config_inst.x.deep_tau_tagger),
 )
@@ -93,6 +93,7 @@ def tau_weights(self: Producer, events: ak.Array, do_syst: bool, **kwargs) -> ak
     pt = flat_np_view(events.Tau.pt, axis=1)
     abseta = flat_np_view(abs(events.Tau.eta), axis=1)
     dm = flat_np_view(events.Tau.decayModeHPS, axis=1)
+    dmPNet = flat_np_view(events.Tau.decayMode, axis=1)
     genmatch = flat_np_view(events.Tau.genPartFlav, axis=1)
 
 
@@ -150,6 +151,13 @@ def tau_weights(self: Producer, events: ak.Array, do_syst: bool, **kwargs) -> ak
         (events.Tau.decayModeHPS == 10)|
         (events.Tau.decayModeHPS == 11)
     )
+    dmPNet_mask = (
+        (events.Tau.decayMode == 0) |
+        (events.Tau.decayMode == 1) |
+        (events.Tau.decayMode == 2) |
+        (events.Tau.decayMode == 10)|
+        (events.Tau.decayMode == 11)
+    )
   
     # start with ones
     sf_nom = np.ones_like(pt, dtype=np.float32)
@@ -165,10 +173,13 @@ def tau_weights(self: Producer, events: ak.Array, do_syst: bool, **kwargs) -> ak
         raise NotImplementedError
         
     args_vs_mu  = lambda mask, id_vs_m_wp, syst  : (abseta[mask], genmatch[mask], id_vs_m_wp, syst)    
-    args_vs_jet = lambda mask, id_vs_j_wp, id_vs_e_wp, syst : (pt[mask], dm[mask], genmatch[mask], id_vs_j_wp, id_vs_e_wp, syst, "dm")
+    #args_vs_jet = lambda mask, id_vs_j_wp, id_vs_e_wp, syst : (pt[mask], dm[mask], genmatch[mask], id_vs_j_wp, id_vs_e_wp, syst, "dm")
+    args_vs_jet = lambda mask, id_vs_j_wp, id_vs_e_wp, syst : (pt[mask], dmPNet[mask], genmatch[mask], id_vs_j_wp, id_vs_e_wp, syst, "dm")
     
-    trig_eval_args     = lambda mask, type, discr, syst: (pt[mask], dm[mask], type, discr, "sf", syst)
-    trig_eff_eval_args = lambda mask, type, discr, node, syst: (pt[mask], dm[mask], type, discr, node, syst)
+    #trig_eval_args     = lambda mask, type, discr, syst: (pt[mask], dm[mask], type, discr, "sf", syst)
+    #trig_eff_eval_args = lambda mask, type, discr, node, syst: (pt[mask], dm[mask], type, discr, node, syst)
+    trig_eval_args     = lambda mask, type, discr, syst: (pt[mask], dmPNet[mask], type, discr, "sf", syst)
+    trig_eff_eval_args = lambda mask, type, discr, node, syst: (pt[mask], dmPNet[mask], type, discr, node, syst)
 
 
     shifts = ["nom"]
@@ -221,6 +232,7 @@ def tau_weights(self: Producer, events: ak.Array, do_syst: bool, **kwargs) -> ak
                                                          self.id_vs_e_corrector.evaluate(*args_vs_e(e_mask, wp_config["vs_e"]["mutau"], the_shift)),
                                                          self.id_vs_e_corrector.evaluate(*args_vs_e(e_mask, wp_config["vs_e"]["tautau"], the_shift))))
 
+        """
         if do_syst:
             # --->>> electron fakes -> split into 2 eta regions [up/down only]
             for region, region_mask in [
@@ -237,10 +249,11 @@ def tau_weights(self: Producer, events: ak.Array, do_syst: bool, **kwargs) -> ak
                 
                 wt_name = f"tau_weight_e_{region}" if the_shift == "nom" else f"tau_weight_e_{region}_{the_shift}"
                 events = set_ak_column(events, wt_name, reduce_mul(sf_values_e[the_shift]), value_type=np.float32)
-
+        """
             
         # trigger sf
-        trig_e_mask = (channel_id_flat == ch_etau.id) & flat_np_view((dm_mask & (events.Tau.pt >= 25.0)), axis=1) & cross_e_triggered & ~single_e_triggered
+        #trig_e_mask = (channel_id_flat == ch_etau.id) & flat_np_view((dm_mask & (events.Tau.pt >= 25.0)), axis=1) & cross_e_triggered & ~single_e_triggered
+        trig_e_mask = (channel_id_flat == ch_etau.id) & flat_np_view((dmPNet_mask & (events.Tau.pt >= 25.0)), axis=1) & cross_e_triggered & ~single_e_triggered
         trig_sf_values[the_shift][trig_e_mask] = self.trig_corrector.evaluate(*trig_eval_args(trig_e_mask, 'etau', wp_config["vs_j"]["etau"], the_shift))
 
         ##############################################################
@@ -258,6 +271,7 @@ def tau_weights(self: Producer, events: ak.Array, do_syst: bool, **kwargs) -> ak
                                                           self.id_vs_mu_corrector.evaluate(*args_vs_mu(mu_mask, wp_config["vs_m"]["mutau"], the_shift)),
                                                           self.id_vs_mu_corrector.evaluate(*args_vs_mu(mu_mask, wp_config["vs_m"]["tautau"], the_shift))))
 
+        """
         if do_syst:
             # --->>> muon fakes -> split into 5 eta regions [up/down]
             for region, region_mask in [
@@ -277,10 +291,11 @@ def tau_weights(self: Producer, events: ak.Array, do_syst: bool, **kwargs) -> ak
                 
                 wt_name = f"tau_weight_mu_{region}" if the_shift == "nom" else f"tau_weight_mu_{region}_{the_shift}"
                 events = set_ak_column(events, wt_name, reduce_mul(sf_values_e[the_shift]), value_type=np.float32)
-                
+        """
 
         # trigger sf
-        trig_mu_mask = (channel_id_flat == ch_mutau.id) & flat_np_view((dm_mask & (events.Tau.pt >= 25.0)), axis=1) & cross_mu_triggered & ~single_mu_triggered
+        #trig_mu_mask = (channel_id_flat == ch_mutau.id) & flat_np_view((dm_mask & (events.Tau.pt >= 25.0)), axis=1) & cross_mu_triggered & ~single_mu_triggered
+        trig_mu_mask = (channel_id_flat == ch_mutau.id) & flat_np_view((dmPNet_mask & (events.Tau.pt >= 25.0)), axis=1) & cross_mu_triggered & ~single_mu_triggered
         trig_sf_values[the_shift][trig_mu_mask] = self.trig_corrector.evaluate(*trig_eval_args(trig_mu_mask, 'mutau', wp_config["vs_j"]["mutau"], the_shift))
 
         ##############################################################            
@@ -288,30 +303,87 @@ def tau_weights(self: Producer, events: ak.Array, do_syst: bool, **kwargs) -> ak
         ##############################################################
         # -------------------- for genuine taus -------------------- #
         ##############################################################
-        tau_mask = dm_mask & (events.Tau.genPartFlav == tau_part_flav["tau_had"])
+        #tau_mask = dm_mask & (events.Tau.genPartFlav == tau_part_flav["tau_had"])
+        tau_mask = (events.Tau.genPartFlav == tau_part_flav["tau_had"]) & dmPNet_mask
         tau_mask = flat_np_view(tau_mask, axis=1)
         ch_id_tau_mask = channel_id_flat[tau_mask]
-        sf_values[the_shift][tau_mask] = ak.where(ch_id_tau_mask == ch_etau.id,
-                                                  self.id_vs_jet_corrector.evaluate(*args_vs_jet(tau_mask,
-                                                                                                 wp_config["vs_j"]["etau"],
-                                                                                                 wp_config["vs_e"]["etau"],
-                                                                                                 the_shift)),
-                                                  ak.where(ch_id_tau_mask == ch_mutau.id,
-                                                           self.id_vs_jet_corrector.evaluate(*args_vs_jet(tau_mask,
-                                                                                                          wp_config["vs_j"]["mutau"],
-                                                                                                          wp_config["vs_e"]["mutau"],
-                                                                                                          the_shift)),
-                                                           self.id_vs_jet_corrector.evaluate(*args_vs_jet(tau_mask,
-                                                                                                          wp_config["vs_j"]["tautau"],
-                                                                                                          wp_config["vs_e"]["tautau"],
-                                                                                                          the_shift))))
+        #if (((self.config_inst.campaign.x.year == 2022) & (the_shift == "nom")) | (self.config_inst.campaign.x.year > 2022)):
+        if the_shift == "nom":
+            sf_values[the_shift][tau_mask] = ak.where(ch_id_tau_mask == ch_etau.id,
+                                                      self.id_vs_jet_corrector.evaluate(*args_vs_jet(tau_mask,
+                                                                                                     wp_config["vs_j"]["etau"],
+                                                                                                     wp_config["vs_e"]["etau"],
+                                                                                                     the_shift)),
+                                                      ak.where(ch_id_tau_mask == ch_mutau.id,
+                                                               self.id_vs_jet_corrector.evaluate(*args_vs_jet(tau_mask,
+                                                                                                              wp_config["vs_j"]["mutau"],
+                                                                                                              wp_config["vs_e"]["mutau"],
+                                                                                                              the_shift)),
+                                                               self.id_vs_jet_corrector.evaluate(*args_vs_jet(tau_mask,
+                                                                                                              wp_config["vs_j"]["tautau"],
+                                                                                                              wp_config["vs_e"]["tautau"],
+                                                                                                              the_shift))))
 
+        else:
+            for idm in [0, 1, 2, 10, 11]:
+                tau_dmX_mask = tau_mask & (dmPNet == idm)
+                ch_id_tau_dmX_mask = channel_id_flat[tau_dmX_mask]
+                shift_name = f"syst_TES_{self.config_inst.campaign.x.year}_{self.config_inst.campaign.x.postfix}_dm{idm}_{the_shift}"
+                if idm == 2:
+                    shift_name = f"syst_TES_{self.config_inst.campaign.x.year}_{self.config_inst.campaign.x.postfix}_dm1_{the_shift}"
+
+                #from IPython import embed; embed()
+                    
+                sf_values[the_shift][tau_dmX_mask] = ak.where(ch_id_tau_dmX_mask == ch_etau.id,
+                                                              self.id_vs_jet_corrector.evaluate(*args_vs_jet(tau_dmX_mask,
+                                                                                                             wp_config["vs_j"]["etau"],
+                                                                                                             wp_config["vs_e"]["etau"],
+                                                                                                             shift_name)),
+                                                              ak.where(ch_id_tau_dmX_mask == ch_mutau.id,
+                                                                       self.id_vs_jet_corrector.evaluate(*args_vs_jet(tau_dmX_mask,
+                                                                                                                      wp_config["vs_j"]["mutau"],
+                                                                                                                      wp_config["vs_e"]["mutau"],
+                                                                                                                      shift_name)),
+                                                                       self.id_vs_jet_corrector.evaluate(*args_vs_jet(tau_dmX_mask,
+                                                                                                                      wp_config["vs_j"]["tautau"],
+                                                                                                                      wp_config["vs_e"]["tautau"],
+                                                                                                                      shift_name))))
+                
+                """
+                sf_values_dm[the_shift] = sf_nom.copy()
+                #tau_dmX_mask = tau_mask & (dm == idm)
+                tau_dmX_mask = tau_mask & (dmPNet == idm)
+                ch_id_tau_dmX_mask = channel_id_flat[tau_dmX_mask]
+                ch_id_tau_dmX_mask_tautau = ch_id_tau_dmX_mask == ch_tautau.id
+                the_shift = f"syst_TES_2022_{self.config_inst.campaign.x.postfix}_dm{idm}_{the_shift}"
+                if idm == 2:
+                    the_shift = f"syst_TES_2022_{self.config_inst.campaign.x.postfix}_dm1_{the_shift}"
+
+
+                sf_values_dm[the_shift][tau_dmX_mask] = ak.where(ch_id_tau_dmX_mask == ch_etau.id,
+                                                                 self.id_vs_jet_corrector.evaluate(*args_vs_jet(tau_dmX_mask,
+                                                                                                                wp_config["vs_j"]["etau"],
+                                                                                                                wp_config["vs_e"]["etau"],
+                                                                                                                the_shift)),
+                                                                 ak.where(ch_id_tau_dmX_mask == ch_mutau.id,
+                                                                          self.id_vs_jet_corrector.evaluate(*args_vs_jet(tau_dmX_mask,
+                                                                                                                         wp_config["vs_j"]["mutau"],
+                                                                                                                         wp_config["vs_e"]["mutau"],
+                                                                                                                         the_shift)),
+                                                                          self.id_vs_jet_corrector.evaluate(*args_vs_jet(tau_dmX_mask,
+                                                                                                                         wp_config["vs_j"]["tautau"],
+                                                                                                                         wp_config["vs_e"]["tautau"],
+                                                                                                                         the_shift))))
+            
+                """
+        """
         if do_syst:
             # --->>> genuine taus for DM 0, 1, 10 [only up/down variations]
-            for idm in [0, 1, 10]:
+            for idm in [0, 1, 2, 10]:
                 if the_shift == "nom": continue
                 sf_values_dm[the_shift] = sf_nom.copy()
-                tau_dmX_mask = tau_mask & (dm == idm)
+                #tau_dmX_mask = tau_mask & (dm == idm)
+                tau_dmX_mask = tau_mask & (dmPNet == idm)
                 ch_id_tau_dmX_mask = channel_id_flat[tau_dmX_mask]
                 sf_values_dm[the_shift][tau_dmX_mask] = ak.where(ch_id_tau_dmX_mask == ch_etau.id,
                                                                  self.id_vs_jet_corrector.evaluate(*args_vs_jet(tau_dmX_mask,
@@ -330,7 +402,7 @@ def tau_weights(self: Producer, events: ak.Array, do_syst: bool, **kwargs) -> ak
                 
                 wt_name = f"tau_weight_jet_dm{idm}" if the_shift == "nom" else f"tau_weight_jet_dm{idm}_{the_shift}"
                 events = set_ak_column(events, wt_name, reduce_mul(sf_values_dm[the_shift]), value_type=np.float32)
-
+        """
         # trig sf
         """
         trig_tau_mask = (channel_id_flat == ch_tautau.id) & flat_np_view((dm_mask & (events.Tau.pt >= 40.0)), axis=1) & cross_tau_triggered & ~cross_tau_jet_triggered
@@ -348,8 +420,10 @@ def tau_weights(self: Producer, events: ak.Array, do_syst: bool, **kwargs) -> ak
         #trig_tau_mask = (channel_id_flat == ch_tautau.id) & flat_np_view((dm_mask & (events.Tau.pt >= 40.0)), axis=1) & (cross_tau_triggered | cross_tau_jet_triggered)
         #from IPython import embed; embed()
 
-        trig_tautau_mask = (channel_id_flat == ch_tautau.id) & flat_np_view((dm_mask & (events.Tau.pt >= 40.0)), axis=1) & cross_tau_triggered
-        trig_tautaujet_mask = (channel_id_flat == ch_tautau.id) & flat_np_view((dm_mask & (events.Tau.pt >= 40.0)), axis=1) & cross_tau_jet_triggered
+        #trig_tautau_mask = (channel_id_flat == ch_tautau.id) & flat_np_view((dm_mask & (events.Tau.pt >= 40.0)), axis=1) & cross_tau_triggered
+        #trig_tautaujet_mask = (channel_id_flat == ch_tautau.id) & flat_np_view((dm_mask & (events.Tau.pt >= 40.0)), axis=1) & cross_tau_jet_triggered
+        trig_tautau_mask = (channel_id_flat == ch_tautau.id) & flat_np_view((dmPNet_mask & (events.Tau.pt >= 40.0)), axis=1) & cross_tau_triggered
+        trig_tautaujet_mask = (channel_id_flat == ch_tautau.id) & flat_np_view((dmPNet_mask & (events.Tau.pt >= 40.0)), axis=1) & cross_tau_jet_triggered
         _trig_mask = {"ditau": trig_tautau_mask, "ditaujet": trig_tautaujet_mask}
         trig_mask = (trig_tautau_mask | trig_tautaujet_mask)
 
@@ -445,13 +519,20 @@ def tau_weights_setup(self: Producer, reqs: dict, inputs: dict, reader_targets: 
     correction_set = correctionlib.CorrectionSet.from_string(
         self.get_tau_file(bundle.files).load(formatter="gzip").decode("utf-8"),
     )
+    genuine_tau_correction_set = correctionlib.CorrectionSet.from_string(
+        self.get_genuine_tau_file(bundle.files).load(formatter="gzip").decode("utf-8"),
+    )
+    trig_correction_set = correctionlib.CorrectionSet.from_string(
+        self.get_tau_trig_file(bundle.files).load(formatter="gzip").decode("utf-8"),
+    )
     tagger_name = self.get_tau_tagger()
     # id
-    self.id_vs_jet_corrector = correction_set[f"{tagger_name}VSjet"]
+    #self.id_vs_jet_corrector = correction_set[f"{tagger_name}VSjet"]
+    self.id_vs_jet_corrector = genuine_tau_correction_set[f"tau_sf_pt-dm_{tagger_name}VSjet_{self.config_inst.campaign.x.year}_{self.config_inst.campaign.x.postfix}"]
     self.id_vs_e_corrector = correction_set[f"{tagger_name}VSe"]
     self.id_vs_mu_corrector = correction_set[f"{tagger_name}VSmu"]
     # trigger
-    self.trig_corrector = correction_set["tau_trigger"]
+    self.trig_corrector = trig_correction_set["tauTriggerSF"]
 
     correction_set_jetleg = correctionlib.CorrectionSet.from_file(
         self.get_jetleg_file(bundle.files),

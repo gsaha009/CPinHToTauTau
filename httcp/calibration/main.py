@@ -78,7 +78,7 @@ def main(self: Calibrator, events: ak.Array, **kwargs) -> ak.Array:
         events = ak.without_field(events, "RawPuppiMET")
         events = ak.without_field(events, "PuppiMET")
 
-    logger.warning("JER is not going to be applied to jets in MC with eta > 2.5 and has no genjet match : L716-L722 (columnflow.calibration.jets.py)")
+    logger.warning("JER is not going to be applied to jets in MC with 2.5 < eta < 3.0 (NEW) and has no genjet match : L716-L722 (columnflow.calibration.jets.py)")
     events = self[jets](events, **kwargs)
 
     if self.config_inst.campaign.x.run == 3:

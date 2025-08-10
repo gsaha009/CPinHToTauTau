@@ -173,7 +173,7 @@ def build_abcd_masks(
     met = events.MET if self.config_inst.campaign.x.run == 2 else events.PuppiMET
     met = ak.with_name(met, "PtEtaPhiMLorentzVector")
     #from IPython import embed; embed()
-    is_low_mt = transverse_mass(h1, met) < 70.0 # DESY
+    is_low_mt = transverse_mass(h1, met) < 65.0 #70.0 # DESY
     is_high_mt = ~is_low_mt & (transverse_mass(h1, met) < 200.0)
     
     is_low_mt  = ak.fill_none(ak.any(is_low_mt, axis=1), False)
@@ -278,4 +278,3 @@ def build_abcd_masks(
 
 
     return events
-
