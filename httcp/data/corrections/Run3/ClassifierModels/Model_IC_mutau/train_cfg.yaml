@@ -1,0 +1,43 @@
+Features:
+  train:
+  - pt_1
+  - pt_2
+  - abs_eta_1
+  - met_pt
+  - met_dphi_1
+  - met_dphi_2
+  - dR
+  - dphi
+  - pt_tt
+  - m_vis
+  - pt_vis
+  - FastMTT_mass
+  - mt_1
+  - mt_2
+  - mt_lep
+  - mt_tot
+  - jpt_1
+  - jpt_2
+  - jeta_1
+  - jeta_2
+  - mjj
+  - jdeta
+  - dijetpt
+  - n_jets
+  truth: class_label
+  weight: class_weight
+Setup:
+  input_path: /vols/cms/lcr119/offline/HiggsCP/data/prod_august/ShuffleMerge/mt
+  model_dir_name: model_mt
+  model_outputs: XGB_Models/prod_august/mt
+  model_prefix: model
+param:
+  colsample_bytree: 0.5770181356594734
+  device: gpu
+  lambda: 0.0013001691979642042
+  learning_rate: 0.06416736561853177
+  max_depth: 8
+  min_child_weight: 3
+  n_estimators: 517
+  objective: multi:softmax
+  subsample: 0.9277940909078621
