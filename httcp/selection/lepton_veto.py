@@ -205,3 +205,26 @@ def double_lepton_veto(
     )
     
 
+@selector(
+    uses={
+        "LHEPart.pdgId",
+    },
+    exposed=False,
+    mc_only=True,
+)
+def tau_veto_from_dy(
+        self: Selector,
+        events: ak.Array,
+        **kwargs,
+) -> tuple[ak.Array, SelectionResult]:
+    """
+    A veto on events containing taus in DYto2L Madgraph samples
+    which are bugged. DYto2Tau new correctly produced samples
+    are going to be used and it requires to veto events with
+    taus at LHE level
+    """
+    n_taus = ak.sum(np.abs(events.LHEPart.pdgId) == 15, axis=-1)
+    has_no_taus = n_taus == 0
+    return events, SelectionResult(
+        steps={"has_no_taus_at_LHE": has_no_taus}
+    )
