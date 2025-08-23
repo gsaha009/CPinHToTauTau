@@ -145,8 +145,9 @@ def tau_energy_scale(self: Calibrator, events: ak.Array, **kwargs) -> ak.Array:
     #events = set_ak_column_f32(events, "Tau.mass_tautau", ak.unflatten(mass, arr_shape))
 
     # propagate to met
-    events = set_ak_column_f32(events, "PuppiMET.pt_no_tes", events.PuppiMET.pt)
-    events = set_ak_column_f32(events, "PuppiMET.phi_no_tes", events.PuppiMET.phi)
+    #from IPython import embed; embed()
+    events = set_ak_column_f32(events, "PuppiMET.pt_no_tes", ak.nan_to_num(events.PuppiMET.pt, nan=0.0))
+    events = set_ak_column_f32(events, "PuppiMET.phi_no_tes", ak.nan_to_num(events.PuppiMET.phi, nan=0.0))
     
     #from IPython import embed; embed()
     # propagate changes to MET
@@ -155,11 +156,12 @@ def tau_energy_scale(self: Calibrator, events: ak.Array, **kwargs) -> ak.Array:
         tausum_before.phi,
         events.Tau.pt_tautau,
         events.Tau.phi,
-        events.PuppiMET.pt,
-        events.PuppiMET.phi,
+        ak.nan_to_num(events.PuppiMET.pt, nan=0.0),
+        ak.nan_to_num(events.PuppiMET.phi, nan=0.0),
     )
-    events = set_ak_column_f32(events, "PuppiMET.pt", met_pt)
-    events = set_ak_column_f32(events, "PuppiMET.phi", met_phi)
+    #from IPython import embed; embed()
+    events = set_ak_column_f32(events, "PuppiMET.pt", ak.nan_to_num(met_pt, nan=0.0))
+    events = set_ak_column_f32(events, "PuppiMET.phi", ak.nan_to_num(met_phi, nan=0.0))
 
     
     stop = time.time()
