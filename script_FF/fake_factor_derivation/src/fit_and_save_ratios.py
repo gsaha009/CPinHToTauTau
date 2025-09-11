@@ -60,7 +60,8 @@ def configure_directories(config):
     else:
         PT_RANGE = (35, 100)
 
-    OUTPUT_DIR_BASE = f"/afs/cern.ch/user/o/oponcet/private/analysis/CPinHToTauTau/script_FF/fake_factor_derivation/outputs/{ERA}/{CORRECTION_TYPE}"
+    #OUTPUT_DIR_BASE = f"/afs/cern.ch/user/o/oponcet/private/analysis/CPinHToTauTau/script_FF/fake_factor_derivation/outputs/{ERA}/{CORRECTION_TYPE}"
+    OUTPUT_DIR_BASE = f"/eos/project/i/iphctau/public/gsaha/CPinHToTauTauOutput/fakeFactors_tautau/{ERA}"
     ensure_directory(OUTPUT_DIR_BASE)
 
     # Handle all combinations of DM and n_jets
@@ -383,9 +384,9 @@ def process_category(input_files, ss_noniso_data_minus_mc_files, ss_iso_data_min
     results = []
 
     for INPUT_FILE, ss_noniso_data_minus_mc_file, ss_iso_data_minus_mc_file, OUTPUT_DIR, CATEGORY in zip(input_files, ss_noniso_data_minus_mc_files, ss_iso_data_minus_mc_files, output_dirs, categories):
-        # print(f"Processing category: {CATEGORY}")
+        print(f"Processing category: {CATEGORY}")
         dm, njet = extract_category_info(CATEGORY)
-
+        #from IPython import embed; embed(); exit()
         ss_noniso_data_minus_mc_pkl, ss_iso_data_minus_mc_pkl = load_data_files(ss_noniso_data_minus_mc_file, ss_iso_data_minus_mc_file)
         ss_noniso_data_minus_mc_hist, ss_iso_data_minus_mc_hist = ss_noniso_data_minus_mc_pkl[0, :, :], ss_iso_data_minus_mc_pkl[0, :, :]
 
@@ -420,6 +421,8 @@ def extract_hist_data(hist):
     bin_edges = hist.axes[1].edges
     bin_contents = hist.values().flatten()
     bin_uncertainties = np.sqrt(hist.variances()).flatten()
+    print(bin_edges)
+    print(bin_contents)
     return bin_edges, bin_contents, bin_uncertainties
 
 
@@ -479,6 +482,8 @@ def main(args):
 
         # Assign configuration values and directories
         input_files, ss_noniso_data_minus_mc_files, ss_iso_data_minus_mc_files, output_dirs, HIST_NAME, categories, PT_RANGE = configure_directories(config)
+
+        #from IPython import embed; embed(); exit()
         
         results = process_category(input_files, ss_noniso_data_minus_mc_files, ss_iso_data_minus_mc_files, output_dirs, categories)
         
@@ -654,8 +659,11 @@ def main(args):
 
             CATEGORY = f"{dm}_{njet}" if njet != -1 else dm  # Handle cases where njet is -1
 
+<<<<<<< HEAD
             print(f"Processing category: {CATEGORY}")
 
+=======
+>>>>>>> 0a95867 (tune FF files)
             combined_ss_noniso_data_minus_mc_th1d_list = []
             combined_ss_iso_data_minus_mc_th1d_list = []
 
@@ -674,7 +682,8 @@ def main(args):
 
             CORRECTION_TYPE = config["correction_type"] 
 
-            OUTPUT_DIR_BASE = f"/afs/cern.ch/user/o/oponcet/private/analysis/CPinHToTauTau/script_FF/fake_factor_derivation/outputs/{combined_era}/{CORRECTION_TYPE}"
+            #OUTPUT_DIR_BASE = f"/afs/cern.ch/user/o/oponcet/private/analysis/CPinHToTauTau/script_FF/fake_factor_derivation/outputs/{combined_era}/{CORRECTION_TYPE}"
+            OUTPUT_DIR_BASE = f"/eos/project/i/iphctau/public/gsaha/CPinHToTauTauOutput/fakeFactors_tautau/{combined_era}/{CORRECTION_TYPE}"
             ensure_directory(OUTPUT_DIR_BASE)
 
             OUTPUT_DIR = os.path.join(OUTPUT_DIR_BASE, f"{dm}_{njet}")

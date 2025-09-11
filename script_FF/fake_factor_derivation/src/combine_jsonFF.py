@@ -78,7 +78,8 @@ merged_structure["corrections"][0]["data"]["content"] = [
 
 
 # Save the merged JSON
-output_file = f"/afs/cern.ch/user/o/oponcet/private/analysis/CPinHToTauTau/script_FF/fake_factor_derivation/outputs/{year}/fake_factors/json/fake_factor_{year}.json"
+#output_file = f"/afs/cern.ch/user/o/oponcet/private/analysis/CPinHToTauTau/script_FF/fake_factor_derivation/outputs/{year}/fake_factors/json/fake_factor_{year}.json"
+output_file = f"/eos/project/i/iphctau/public/gsaha/CPinHToTauTauOutput/fakeFactors_tautau/{year}/json/fake_factor_{year}.json"
 # guranty that the output directory exists
 import os
 os.makedirs(os.path.dirname(output_file), exist_ok=True)
