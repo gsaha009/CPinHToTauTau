@@ -231,11 +231,12 @@ def add_config (ana: od.Analysis,
 
     cfg.x.signal_filter_efficiency = DotDict.wrap({
         "h_ggf_tautau_uncorrelatedDecay_SM_Filtered_ProdAndDecay": 0.3847,
-        "h_ggf_tautau_uncorrelatedDecay_MM_Filtered_ProdAndDecay": 0.3847,
-        "h_ggf_tautau_uncorrelatedDecay_CPodd_Filtered_ProdAndDecay": 0.3847,
-        "wph_tautau_uncorrelatedDecay_Filtered": 0.3847,
-        "wmh_tautau_uncorrelatedDecay_Filtered": 0.3847,
-        "zh_tautau_uncorrelatedDecay_Filtered": 0.3847,
+        "h_ggf_tautau_uncorrelatedDecay_MM_Filtered_ProdAndDecay": 0.3848,
+        "h_ggf_tautau_uncorrelatedDecay_CPodd_Filtered_ProdAndDecay": 0.3848,
+        "wph_tautau_uncorrelatedDecay_Filtered": 0.3743,
+        "wmh_tautau_uncorrelatedDecay_Filtered": 0.3944,
+        "zh_tautau_uncorrelatedDecay_Filtered": 0.3933,
+        "h_vbf_tautau_uncorrelatedDecay_Filtered": 0.4091,
     })
 
     
@@ -493,11 +494,11 @@ def add_config (ana: od.Analysis,
 
     elif year == 2023:
         if postfix == "preBPix":
-            cfg.x.luminosity = Number(17_794 , {
+            cfg.x.luminosity = Number(18_063 , {
                 "lumi_13TeV_correlated": 0.0j,
             })
         elif postfix == "postBPix":
-            cfg.x.luminosity = Number(9_451, {
+            cfg.x.luminosity = Number(9_693, {
                 "lumi_13TeV_correlated": 0.0j,
             })
             
