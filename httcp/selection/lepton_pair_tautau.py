@@ -371,6 +371,13 @@ def tautau_selection(
     vs_mu_wp        = self.config_inst.x.deep_tau_info[tau_tagger].vs_m["tautau"]
     vs_jet_wp       = self.config_inst.x.deep_tau_info[tau_tagger].vs_j["tautau"]
 
+    # rename the {channel}_pt/mass to pt/mass
+    if self.dataset_inst.is_mc:
+        taus = ak.without_field(taus, "pt")
+        taus = ak.with_field(taus, taus.pt_tautau, "pt")
+        taus = ak.without_field(taus, "mass")
+        taus = ak.with_field(taus, taus.mass_tautau, "mass")
+    
     is_good_tau     = (
         (taus.pt > 20.0)
         #(taus.idDeepTau2018v2p5VSjet   >= tau_tagger_wps.vs_j[vs_jet_wp])
@@ -380,12 +387,6 @@ def tautau_selection(
 
     taus = taus[is_good_tau]
 
-    # rename the {channel}_pt/mass to pt/mass
-    if self.dataset_inst.is_mc:
-        taus = ak.without_field(taus, "pt")
-        taus = ak.with_field(taus, taus.pt_tautau, "pt")
-        taus = ak.without_field(taus, "mass")
-        taus = ak.with_field(taus, taus.mass_tautau, "mass")
     
     # Sorting leps [Tau] by deeptau [descending]
     taus_sort_idx = ak.argsort(taus.rawDeepTau2018v2p5VSjet, axis=-1, ascending=False)

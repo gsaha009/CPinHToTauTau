@@ -227,6 +227,13 @@ def etau_selection(
     vs_mu_wp        = self.config_inst.x.deep_tau_info[tau_tagger].vs_m["etau"]
     vs_jet_wp       = self.config_inst.x.deep_tau_info[tau_tagger].vs_j["etau"]
 
+    if self.dataset_inst.is_mc:
+        # rename "pt_etau" and "mass_etau" to "pt" and "mass"
+        taus = ak.without_field(taus, "pt")
+        taus = ak.with_field(taus, taus.pt_etau, "pt")
+        taus = ak.without_field(taus, "mass")
+        taus = ak.with_field(taus, taus.mass_etau, "mass")
+    
     is_good_tau     = (
         (taus.pt > 20.0)
         #(taus.idDeepTau2018v2p5VSjet   >= tau_tagger_wps.vs_j[vs_jet_wp])
@@ -235,13 +242,6 @@ def etau_selection(
     )
 
     taus = taus[is_good_tau]
-
-    if self.dataset_inst.is_mc:
-        # rename "pt_etau" and "mass_etau" to "pt" and "mass"
-        taus = ak.without_field(taus, "pt")
-        taus = ak.with_field(taus, taus.pt_etau, "pt")
-        taus = ak.without_field(taus, "mass")
-        taus = ak.with_field(taus, taus.mass_etau, "mass")
 
     # puppi for Run3
     met = events.MET if self.config_inst.campaign.x.year < 2022 else events.PuppiMET
