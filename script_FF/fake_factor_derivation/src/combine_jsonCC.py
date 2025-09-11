@@ -6,20 +6,21 @@ Script to combine the json files into one.
 import json
 import glob
 
-year = "2022_preEE"  # Change this to the desired year
+
+year = "2023_postBPix"  # Change this to the desired year
 # Define the files and the structure
-input_files = glob.glob(f"/afs/cern.ch/user/o/oponcet/private/analysis/CPinHToTauTau/script_FF/fake_factor_derivation/outputs/{year}/fake_factors/*/*.json")  # Replace with the path to your files
+input_files = glob.glob(f"/afs/cern.ch/user/o/oponcet/private/analysis/CPinHToTauTau/script_FF/fake_factor_derivation/outputs/{year}/closure_correction/*/*.json")  # Replace with the path to your files
 merged_structure = {
     "schema_version": 2,
-    "description": "Fake factors for the httcp analysis",
+    "description": "Closure corrections for the httcp analysis",
     "corrections": [
         {
-            "name": "fake_factors_fit",
-            "description": "Fit fake factors for all decay modes and jet categories",
+            "name": "closure_corrections_fit",
+            "description": "Fit closure corrections for all decay modes and jet categories",
             "version": 1,
             "inputs": [
                 {
-                    "name": "pt",
+                    "name": "met_var_qcd_h1",
                     "type": "real",
                     "description": "Transverse momentum of the tau"
                 },
@@ -40,9 +41,9 @@ merged_structure = {
                 }
             ],
             "output": {
-                "name": "fake_factor",
+                "name": "closure_correction",
                 "type": "real",
-                "description": "Fake factor to apply to data-MC"
+                "description": "Closure correction to apply to data-MC"
             },
             "data": {
                 "nodetype": "category",
@@ -78,7 +79,7 @@ merged_structure["corrections"][0]["data"]["content"] = [
 
 
 # Save the merged JSON
-output_file = f"/afs/cern.ch/user/o/oponcet/private/analysis/CPinHToTauTau/script_FF/fake_factor_derivation/outputs/{year}/fake_factors/json/fake_factor_{year}.json"
+output_file = f"/afs/cern.ch/user/o/oponcet/private/analysis/CPinHToTauTau/script_FF/fake_factor_derivation/outputs/{year}/closure_correction/json/closure_correction_{year}.json"
 # guranty that the output directory exists
 import os
 os.makedirs(os.path.dirname(output_file), exist_ok=True)
