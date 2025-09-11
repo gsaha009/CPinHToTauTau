@@ -228,6 +228,16 @@ def add_config (ana: od.Analysis,
         "h_vbf_tautau_uncorrelatedDecay_Filtered",
         "qcd",
     ]
+
+    cfg.x.signal_filter_efficiency = DotDict.wrap({
+        "h_ggf_tautau_uncorrelatedDecay_SM_Filtered_ProdAndDecay": 0.3847,
+        "h_ggf_tautau_uncorrelatedDecay_MM_Filtered_ProdAndDecay": 0.3847,
+        "h_ggf_tautau_uncorrelatedDecay_CPodd_Filtered_ProdAndDecay": 0.3847,
+        "wph_tautau_uncorrelatedDecay_Filtered": 0.3847,
+        "wmh_tautau_uncorrelatedDecay_Filtered": 0.3847,
+        "zh_tautau_uncorrelatedDecay_Filtered": 0.3847,
+    })
+
     
     datasets_data = []
     if year == 2022:

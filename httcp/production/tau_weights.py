@@ -665,6 +665,12 @@ def tauspinner_weights(self: Producer, events: ak.Array, **kwargs) -> ak.Array:
         nan_wts = ak.sum((weight == 0.0))
         if nan_wts > 0:
             logger.critical(f"{nan_wts} events with NaN values of {wt_name} out of {len(events)} events, and those NaNs are replaced by 0.0")
+
+        filter_effs = self.config_inst.x.signal_filter_efficiency
+        if self.dataset_inst.name in filter_effs.keys():
+            weight *= filter_effs[self.dataset_inst.name]
+        else:
+            logger.warning(f"No filter efficiency is registered for {self.dataset_inst.name}")
             
         events = set_ak_column_f32(events, f"tauspinner_weight{_name}", weight)
         if _name == "_cpeven": # redundant, needs to be resolved later
