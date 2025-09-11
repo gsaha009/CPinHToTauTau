@@ -468,8 +468,10 @@ def main(
     outliers_mask_for_stitching = None
     
     if self.process_ids_dy is not None:
+        logger.warning("DY stitching is ON : AGAIN")
         events, outliers_mask_for_stitching = self[self.process_ids_dy](events, **kwargs)
     elif self.process_ids_w is not None:
+        logger.warning("W stitching is ON : AGAIN")
         events, outliers_mask_for_stitching = self[self.process_ids_w](events, **kwargs)
     else:
         events = self[process_ids](events, **kwargs)
@@ -547,6 +549,7 @@ def main_init(self: Selector) -> None:
     #from IPython import embed; embed()
     if self.dataset_inst.has_tag("is_dy_m50"):
         if self.config_inst.x.allow_dy_stitching:
+            #logger.warning("DY stitching is ON")
             #print(f"stitching: {self.config_inst.x.dy_stitching.items()}")
             # check if this dataset is covered by any dy id producer
             for name, dy_cfg in self.config_inst.x.dy_stitching.items():
@@ -569,6 +572,7 @@ def main_init(self: Selector) -> None:
     self.process_ids_w: process_ids_w | None = None
     if self.dataset_inst.has_tag("is_w"):
         if self.config_inst.x.allow_w_stitching:
+            #logger.warning("W stitching is ON")
             # check if this dataset is covered by any dy id producer
             for name, w_cfg in self.config_inst.x.w_stitching.items():
                 dataset_inst = w_cfg["inclusive_dataset"]

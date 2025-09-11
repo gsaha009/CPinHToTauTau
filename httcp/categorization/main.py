@@ -263,6 +263,25 @@ def cat_tautau_node_fake(self: Categorizer, events: ak.Array, **kwargs) -> tuple
 def cat_tautau_node_higgs(self: Categorizer, events: ak.Array, **kwargs) -> tuple[ak.Array, ak.Array]:
     return events, events.is_tautau_higgs
 
+@categorizer(uses={"is_tautau_higgs_bin_1"})
+def cat_tautau_node_higgs_bin_1(self: Categorizer, events: ak.Array, **kwargs) -> tuple[ak.Array, ak.Array]:
+    return events, events.is_tautau_higgs_bin_1
+
+@categorizer(uses={"is_tautau_higgs_bin_2"})
+def cat_tautau_node_higgs_bin_2(self: Categorizer, events: ak.Array, **kwargs) -> tuple[ak.Array, ak.Array]:
+    return events, events.is_tautau_higgs_bin_2
+
+@categorizer(uses={"is_tautau_higgs_bin_3"})
+def cat_tautau_node_higgs_bin_3(self: Categorizer, events: ak.Array, **kwargs) -> tuple[ak.Array, ak.Array]:
+    return events, events.is_tautau_higgs_bin_3
+
+@categorizer(uses={"is_tautau_higgs_bin_4"})
+def cat_tautau_node_higgs_bin_4(self: Categorizer, events: ak.Array, **kwargs) -> tuple[ak.Array, ak.Array]:
+    return events, events.is_tautau_higgs_bin_4
+
+@categorizer(uses={"is_tautau_higgs_bin_5"})
+def cat_tautau_node_higgs_bin_5(self: Categorizer, events: ak.Array, **kwargs) -> tuple[ak.Array, ak.Array]:
+    return events, events.is_tautau_higgs_bin_5
 
 # ---------------------------------------------------------- #
 #                          For ABCD                          #

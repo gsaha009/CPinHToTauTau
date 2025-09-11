@@ -35,23 +35,21 @@ def kwargs_fn(root_categories):
 
 @call_once_on_config()
 def add_common_categories(config: od.Config) -> None:
-    """
     add_category(config,
                  name="incl",
-                 id=9000000,
+                 id=10000000,
                  selection="cat_incl",
                  label=r"$Inclusive$",
                  tags={"incl"})
-    """
     add_category(config,
                  name="etau",
-                 id=10000000,
+                 id=20000000,
                  selection="cat_etau",
                  label=r"$e\tau_{h}$",
                  tags={"etau"})
     add_category(config,
                  name="mutau",
-                 id=20000000,
+                 id=30000000,
                  selection="cat_mutau",
                  label=r"$\mu\tau_{h}$",
                  tags={"mutau"})
@@ -64,10 +62,6 @@ def add_common_categories(config: od.Config) -> None:
 
 @call_once_on_config()
 def add_RealOrFake_categories(config: od.Config) -> None:
-    #add_category(config, name="real_1", id=1000000, selection="cat_real_1", label=r"$t_1$", tags={"tau1isRealMC"})
-    #add_category(config, name="fake_1", id=2000000, selection="cat_fake_1", label=r"$f_1$", tags={"tau1isFakeMC"})
-    #add_category(config, name="real_2", id=3000000, selection="cat_real_2", label=r"$t_2$", tags={"tau2isRealMC"})
-    #add_category(config, name="fake_2", id=4000000, selection="cat_fake_2", label=r"$f_2$", tags={"tau2isFakeMC"})
     add_category(config, name="real_1", id=1000000, selection="cat_real_1", label="prompt",     tags={"tau1isRealMC"})
     add_category(config, name="fake_1", id=2000000, selection="cat_fake_1", label="non-prompt", tags={"tau1isFakeMC"})
     add_category(config, name="real_2", id=3000000, selection="cat_real_2", label="prompt",     tags={"tau2isRealMC"})
@@ -80,6 +74,8 @@ def add_RealOrFake_categories(config: od.Config) -> None:
     
 @call_once_on_config()
 def add_njet_categories(config: od.Config) -> None:
+    """
+    """
     add_category(config, name="has_0j", id=100000, selection="cat_0j", label=r"$0$ jet",           tags={"has0j"})
     add_category(config, name="has_1j", id=200000, selection="cat_1j", label=r"$1$ jet",           tags={"has1j"})
     add_category(config, name="has_2j", id=300000, selection="cat_2j", label=r"$\geq{2}$ jets",    tags={"has2j"})
@@ -87,15 +83,19 @@ def add_njet_categories(config: od.Config) -> None:
 
 @call_once_on_config()
 def add_ABCD_categories(config: od.Config) -> None:
+    """
+     just before the final leaf
+     keep ids from 1500 with 1500 interval, up to 30000
+    """
     # hardonic
-    add_category(config,name="hadA",  id=1000,  selection="cat_ss_iso1_iso2_bveto",       label="A",   tags={"ss","iso1",   "iso2",   "bveto"})
+    add_category(config,name="hadA",  id=1500,  selection="cat_ss_iso1_iso2_bveto",       label="A",   tags={"ss","iso1",   "iso2",   "bveto"})
     add_category(config,name="hadB",  id=3000,  selection="cat_ss_noniso1_iso2_bveto",    label="B",   tags={"ss","noniso1","iso2",   "bveto"})
-    add_category(config,name="hadA0", id=5000,  selection="cat_ss_iso1_noniso2_bveto",    label="A0",  tags={"ss","iso1",   "noniso2","bveto"})
-    add_category(config,name="hadB0", id=7000,  selection="cat_ss_noniso1_noniso2_bveto", label="B0",  tags={"ss","noniso1","noniso2","bveto"})
-    add_category(config,name="hadD0", id=9000,  selection="cat_os_iso1_noniso2_bveto",    label="D0",  tags={"os","iso1",   "noniso2","bveto"})
-    add_category(config,name="hadC0", id=11000, selection="cat_os_noniso1_noniso2_bveto", label="C0",  tags={"os","noniso1","noniso2","bveto"})
-    add_category(config,name="hadD",  id=13000, selection="cat_os_iso1_iso2_bveto",       label="Signal Region",  tags={"os","iso1",   "iso2",   "bveto"})
-    add_category(config,name="hadC",  id=15000, selection="cat_os_noniso1_iso2_bveto",    label="Application Region",  tags={"os","noniso1","iso2",   "bveto"})
+    add_category(config,name="hadA0", id=4500,  selection="cat_ss_iso1_noniso2_bveto",    label="A0",  tags={"ss","iso1",   "noniso2","bveto"})
+    add_category(config,name="hadB0", id=6000,  selection="cat_ss_noniso1_noniso2_bveto", label="B0",  tags={"ss","noniso1","noniso2","bveto"})
+    add_category(config,name="hadD0", id=7500,  selection="cat_os_iso1_noniso2_bveto",    label="D0",  tags={"os","iso1",   "noniso2","bveto"})
+    add_category(config,name="hadC0", id=9000,  selection="cat_os_noniso1_noniso2_bveto", label="C0",  tags={"os","noniso1","noniso2","bveto"})
+    add_category(config,name="hadD",  id=10500, selection="cat_os_iso1_iso2_bveto",       label="Signal Region",  tags={"os","iso1",   "iso2",   "bveto"})
+    add_category(config,name="hadC",  id=12000, selection="cat_os_noniso1_iso2_bveto",    label="Application Region",  tags={"os","noniso1","iso2",   "bveto"})
     # leptonic
     #add_category(config,name="lepA",  id=2000,  selection="cat_ss_iso2_bveto_lowmt",      label="A",   tags={"ss","iso2",   "bveto",  "lowmt" })
     #add_category(config,name="lepB",  id=4000,  selection="cat_ss_noniso2_bveto_lowmt",   label="B",   tags={"ss","noniso2","bveto",  "lowmt" })
@@ -107,30 +107,42 @@ def add_ABCD_categories(config: od.Config) -> None:
     #add_category(config,name="lepC",  id=16000, selection="cat_os_noniso2_bveto_lowmt",   label="Application Region",  tags={"os","noniso2","bveto",  "lowmt" })
 
     # DESY
-    add_category(config,name="DRnum",  id=2000,  selection="cat_os_noniso1_iso2_lowmt",      label="dr_num",   tags={"os","noniso1", "iso2", "lowmt" })
-    add_category(config,name="DRden",  id=4000,  selection="cat_ss_noniso1_iso2_lowmt",      label="dr_den",   tags={"ss","noniso1", "iso2", "lowmt" })
-    add_category(config,name="AR",     id=6000,  selection="cat_ss_iso1_iso2_lowmt",         label="ar",       tags={"ss","iso1",    "iso2", "lowmt" })
-    add_category(config,name="SR",     id=8000,  selection="cat_os_iso1_iso2_lowmt",         label="sr",       tags={"os","iso1",    "iso2", "lowmt" })
+    add_category(config,name="DRnum",  id=13500,  selection="cat_os_noniso1_iso2_lowmt",      label="dr_num",   tags={"os","noniso1", "iso2", "lowmt" })
+    add_category(config,name="DRden",  id=15000,  selection="cat_ss_noniso1_iso2_lowmt",      label="dr_den",   tags={"ss","noniso1", "iso2", "lowmt" })
+    add_category(config,name="AR",     id=16500,  selection="cat_ss_iso1_iso2_lowmt",         label="ar",       tags={"ss","iso1",    "iso2", "lowmt" })
+    add_category(config,name="SR",     id=18000,  selection="cat_os_iso1_iso2_lowmt",         label="sr",       tags={"os","iso1",    "iso2", "lowmt" })
     
 
 @call_once_on_config()
 def add_classifier_categories(config: od.Config) -> None:
+    """
+     just before the final leaf
+     keep ids from 100 with 50 interval, up to 1400
+    """
     # hardonic
-    add_category(config,name="nodeDY_tautau",    id=100,  selection="cat_tautau_node_dy",      label="DY_node",    tags={"dy_node"})
-    add_category(config,name="nodeFake_tautau",  id=300,  selection="cat_tautau_node_fake",    label="Fake_node",  tags={"fake_node"})
-    add_category(config,name="nodeHiggs_tautau", id=500,  selection="cat_tautau_node_higgs",   label="Higgs_node", tags={"higgs_node"})    
+    add_category(config,name="nodeDY_tautau",    id=100,  selection="cat_tautau_node_dy",            label="DY_node",    tags={"dy_node"})
+    add_category(config,name="nodeFake_tautau",  id=150,  selection="cat_tautau_node_fake",          label="Fake_node",  tags={"fake_node"})
+    add_category(config,name="nodeHiggs_tautau", id=200,  selection="cat_tautau_node_higgs",         label="Higgs_node", tags={"higgs_node"})
+    add_category(config,name="nodeHiggs_tautau_bin_1", id=250,  selection="cat_tautau_node_higgs_bin_1",   label="Higgs_node_bin_1", tags={"higgs_node_bin_1"})
+    add_category(config,name="nodeHiggs_tautau_bin_2", id=300,  selection="cat_tautau_node_higgs_bin_2",   label="Higgs_node_bin_2", tags={"higgs_node_bin_2"})
+    add_category(config,name="nodeHiggs_tautau_bin_3", id=350,  selection="cat_tautau_node_higgs_bin_3",   label="Higgs_node_bin_3", tags={"higgs_node_bin_3"})
+    add_category(config,name="nodeHiggs_tautau_bin_4", id=400,  selection="cat_tautau_node_higgs_bin_4",   label="Higgs_node_bin_4", tags={"higgs_node_bin_4"})
+    add_category(config,name="nodeHiggs_tautau_bin_5", id=450,  selection="cat_tautau_node_higgs_bin_5",   label="Higgs_node_bin_5", tags={"higgs_node_bin_5"})    
 
 
     
 @call_once_on_config()
 def add_DM_categories(config: od.Config) -> None:
+    """
+     final chain of categories
+     reserve the ids from 1 to 50
+    """
     # hadronic
     add_category(config, name="pi_1",          id=1,  selection="cat_pi_1",            label=r"$\tau_{h}^{1}\to\pi$",                         tags={"tau1pi"         })  # h1 -> pi
     add_category(config, name="rho_1",         id=3,  selection="cat_rho_1",           label=r"$\tau_{h}^{1}\to\rho$",                        tags={"tau1rho"        })  # h1 -> rho
     add_category(config, name="a1dm2_1",       id=5,  selection="cat_a1dm2_1",         label=r"$\tau_{h}^{1}\to a_{1}(1\pi-2\pi^{0})$",       tags={"tau1a1DM2"      })  # h1 -> a1
     add_category(config, name="a1dm10_1",      id=7,  selection="cat_a1dm10_1",        label=r"$\tau_{h}^{1}\to a_{1}(3\pi-0\pi^{0})$",       tags={"tau1a1DM10"     })  # h1 -> a1
     add_category(config, name="a1dm11_1",      id=9,  selection="cat_a1dm11_1",        label=r"$\tau_{h}^{1}\to a_{1}(3\pi-1\pi^{0})$",       tags={"tau1a1DM11"     })  # h1 -> a1
-    #add_category(config, name="pi_rho_1",      id=11, selection="cat_pi_rho_1",        label=r"$\pi/\rho$",                            tags={"tau1piorrho"    })  # h1 -> a1
     add_category(config, name="pi_pi",         id=11, selection="cat_pi_pi",           label=r"$\tau_{h}\to\pi-\tau_{h}\to\pi$",                                       tags={"pi_pi"        })  # 
     add_category(config, name="pi_rho",        id=13, selection="cat_pi_rho",          label=r"$\tau_{h}\to\pi-\tau_{h}\to\rho$",                                      tags={"pi_rho"       })  # 
     add_category(config, name="pi_a1dm2",      id=15, selection="cat_pi_a1dm2",        label=r"$\tau_{h}\to\pi-\tau_{h}\to a_{1}(1\pi-2\pi^{0})$",                     tags={"pi_a1DM2"     })  # 
@@ -153,6 +165,9 @@ def add_DM_categories(config: od.Config) -> None:
     add_category(config, name="a1dm10_2",      id=8,  selection="cat_a1dm10_2",        label=r"$\tau_{h}\to a_{1}(3\pi-0\pi^{0})$",                  tags={"tau2a1DM10"}) # h2 -> a1
     add_category(config, name="a1dm11_2",      id=10, selection="cat_a1dm11_2",        label=r"$\tau_{h}\to a_{1}(3\pi-1\pi^{0})$",                  tags={"tau2a1DM11"}) # h2 -> a1
 
+
+
+    
     
 @call_once_on_config()
 def add_mutau_categories(config: od.Config) -> None:
@@ -183,7 +198,8 @@ def add_mutau_categories(config: od.Config) -> None:
                     config.get_category("rho_2"),
                     config.get_category("a1dm2_2"),
                     config.get_category("a1dm10_2"),                    
-                    config.get_category("a1dm11_2")],
+                    #config.get_category("a1dm11_2")
+                    ],
     }
     logger.info("mutau_categories")
     n = create_category_combinations(config,
@@ -224,7 +240,8 @@ def add_etau_categories(config: od.Config) -> None:
                     config.get_category("rho_2"),
                     config.get_category("a1dm2_2"),
                     config.get_category("a1dm10_2"),                    
-                    config.get_category("a1dm11_2")],
+                    #config.get_category("a1dm11_2")
+                    ],
     }
     logger.info("etau_categories")
     n = create_category_combinations(config,
@@ -337,6 +354,11 @@ def add_tautau_phiCP_categories(config: od.Config) -> None:
             config.get_category("nodeDY_tautau"),
             config.get_category("nodeFake_tautau"),
             config.get_category("nodeHiggs_tautau"),
+            #config.get_category("nodeHiggs_tautau_bin_1"),
+            #config.get_category("nodeHiggs_tautau_bin_2"),
+            #config.get_category("nodeHiggs_tautau_bin_3"),
+            #config.get_category("nodeHiggs_tautau_bin_4"),
+            #config.get_category("nodeHiggs_tautau_bin_5"),
         ],
         "cp"     : [
             config.get_category("pi_pi"),
@@ -411,12 +433,12 @@ def add_categories(config: od.Config) -> None:
     add_ABCD_categories(config)
     add_DM_categories(config)
 
-    #add_classifier_categories(config)
+    add_classifier_categories(config)
     
     add_mutau_categories(config)
-    add_tautau_categories(config)
+    #add_tautau_categories(config)
     ##add_tautau_real_categories(config)
-    #add_tautau_phiCP_categories(config)
+    add_tautau_phiCP_categories(config)
     ###add_test_categories(config)
     
     #all_cats = [cat.name for cat, _, _ in config.walk_categories()]

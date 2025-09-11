@@ -49,8 +49,8 @@ from httcp.config.config_run3 import add_config as add_config_run3
 
 from cmsdb.campaigns.run3_2022_preEE_nano_cp_tau_v14_nanoprod_2024_v2 import campaign_run3_2022_preEE_nano_cp_tau_v14_nanoprod_2024_v2
 from cmsdb.campaigns.run3_2022_postEE_nano_cp_tau_v14_nanoprod_2024_v2 import campaign_run3_2022_postEE_nano_cp_tau_v14_nanoprod_2024_v2
-from cmsdb.campaigns.run3_2023_preBPix_nano_cp_tau_v14 import campaign_run3_2023_preBPix_nano_cp_tau_v14
-from cmsdb.campaigns.run3_2023_postBPix_nano_cp_tau_v14 import campaign_run3_2023_postBPix_nano_cp_tau_v14
+from cmsdb.campaigns.run3_2023_preBPix_nano_cp_tau_v14_nanoprod_2024_v2 import campaign_run3_2023_preBPix_nano_cp_tau_v14_nanoprod_2024_v2
+from cmsdb.campaigns.run3_2023_postBPix_nano_cp_tau_v14_nanoprod_2024_v2 import campaign_run3_2023_postBPix_nano_cp_tau_v14_nanoprod_2024_v2
 
 # ################################################################## #
 # TO-DO --->>>                                                       #
@@ -62,8 +62,8 @@ from cmsdb.campaigns.run3_2023_postBPix_nano_cp_tau_v14 import campaign_run3_202
 campaign_dict = {
     "2022preEE"    : {"campaign" : campaign_run3_2022_preEE_nano_cp_tau_v14_nanoprod_2024_v2,    "islimited": False, "isfull": True},
     "2022postEE"   : {"campaign" : campaign_run3_2022_postEE_nano_cp_tau_v14_nanoprod_2024_v2,   "islimited": False, "isfull": True},
-    #"2023preBPix"  : {"campaign" : campaign_run3_2023_preBPix_nano_cp_tau_v14,  "islimited": False, "isfull": True},
-    #"2023postBPix" : {"campaign" : campaign_run3_2023_postBPix_nano_cp_tau_v14, "islimited": False, "isfull": True},
+    "2023preBPix"  : {"campaign" : campaign_run3_2023_preBPix_nano_cp_tau_v14_nanoprod_2024_v2,  "islimited": False, "isfull": True},
+    "2023postBPix" : {"campaign" : campaign_run3_2023_postBPix_nano_cp_tau_v14_nanoprod_2024_v2, "islimited": False, "isfull": True},
 }
 
 for key,val in campaign_dict.items():
@@ -88,26 +88,3 @@ for key,val in campaign_dict.items():
             config_id=int(_id)+10,
             limit_dataset_files=1)
         
-        
-
-# ------------------------------------------------------------- #
-#                               Run2                            #
-# ------------------------------------------------------------- #
-"""
-# ===>>> 2018
-from httcp.config.config_run2 import add_config as add_config_run2_2018
-from cmsdb.campaigns.run2_UL2018_nano_cp_tau_v09 import campaign_run2_UL2018_nano_cp_tau_v09
-add_config_run2_2018(
-    analysis_httcp,
-    campaign_run2_UL2018_nano_cp_tau_v09.copy(),
-    config_name=campaign_run2_UL2018_nano_cp_tau_v09.name,
-    config_id=int(f"{campaign_run2_UL2018_nano_cp_tau_v09.id}{1}")
-)
-add_config_run2_2018(
-    analysis_httcp,
-    campaign_run2_UL2018_nano_cp_tau_v09.copy(),
-    config_name=f"{campaign_run2_UL2018_nano_cp_tau_v09.name}_limited",
-    config_id=int(f"{campaign_run2_UL2018_nano_cp_tau_v09.id}{2}"),
-    limit_dataset_files=1
-)
-"""

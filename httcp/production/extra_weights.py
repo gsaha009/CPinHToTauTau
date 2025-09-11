@@ -213,8 +213,7 @@ def zpt_reweight_v2_setup(
     },
     produces={
         "ff_weight",
-        #"closure_weight",
-        #"ff_ext_corr_weight",
+        #"ff_cls_corr_weight",
     },
     mc_only=False,
 )
@@ -226,6 +225,13 @@ def ff_weight(
     # Leading candidate
     hcand1 = events.hcand[:,0] 
 
+    is_A = (
+        (events.channel_id == 4)
+        & ~events.is_os
+        & events.is_real_1
+        & events.is_iso_2
+        & events.is_iso_1
+    )
     is_B = (
         (events.channel_id == 4)
         & ~events.is_os
@@ -248,6 +254,7 @@ def ff_weight(
         & ~events.is_iso_1
     )
 
+    is_A_category = ak.to_numpy(is_A)
     is_B_category = ak.to_numpy(is_B)
     is_C0_category = ak.to_numpy(is_C0)
     is_C_category = ak.to_numpy(is_C)
@@ -257,15 +264,10 @@ def ff_weight(
     pt1 = flat_np_view(hcand1.pt[:,None])
     metvarqcdh1 = flat_np_view(events.met_var_qcd_h1[:,None])
     
-    # Get met_var_qcd_h1
-    #met = ak.with_name(events.PuppiMET, "PtEtaPhiMLorentzVector")
-    #dphi_met_h1 = met.delta_phi(hcand1)
-    #met_var_qcd_h1 = met.pt * np.cos(dphi_met_h1)/hcand1.pt
-    #met_var_qcd_h1 = flat_np_view(met_var_qcd_h1[:,None])
-
     njet = ak.where(events.n_jet > 2, 2, events.n_jet)
     njet = ak.to_numpy(njet)
     dm = ak.where(hcand1.decayMode < 0, 0, hcand1.decayMode)
+    dm = ak.where(dm == 11, 10, dm)
     dm = ak.to_numpy(dm)
         
     fake_factors_nom = self.ff_corrector.evaluate(
@@ -274,28 +276,28 @@ def ff_weight(
         njet,
         "nom",
     )
-    #fake_0_factors_nom = self.ff0_corrector.evaluate(
-    #    pt1,
-    #    dm,
-    #    njet
-    #)
-    #ext_corr_nom = self.ext_corrector.evaluate(
+    ##from IPython import embed; embed()
+    #closure_corr_nom = self.cls_corrector.evaluate(
     #    metvarqcdh1,
+    #    #dm,
+    #    njet,
     #    "nom",
     #)
     
     # Apply the fake factor only for the C category
-    ff_nom = np.where((is_C_category | is_B_category), fake_factors_nom, 1.0)
-    #ff_nom = np.where(is_C0_category, fake_0_factors_nom, ff_nom)
+    ff_nom  = np.where((is_C_category | is_B_category), fake_factors_nom, 1.0)
+    #cls_nom = np.ones_like(ff_nom)
+    #cls_nom = np.where((is_C_category | is_B_category), closure_corr_nom, cls_nom)
+    ##ff_nom = np.where(is_C0_category, fake_0_factors_nom, ff_nom)
 
-    #ext_corr_nom = np.where((is_C_category | is_C0_category), ext_corr_nom, 1.0)
+    ##ext_corr_nom = np.where((is_C_category | is_C0_category), ext_corr_nom, 1.0)
     
-    #closure_nom = np.where(is_C_category, closure_nom, 1.0)
+    ##closure_nom = np.where(is_C_category, closure_nom, 1.0)
 
     # Add the column to the events
     events = set_ak_column(events, "ff_weight", ff_nom, value_type=np.float32)
-    # events = set_ak_column(events, "closure_weight", closure_nom, value_type=np.float32)
-    #events = set_ak_column(events, "ff_ext_corr_weight", ext_corr_nom, value_type=np.float32)
+    #events = set_ak_column(events, "ff_cls_corr_weight", cls_nom, value_type=np.float32)
+    ##events = set_ak_column(events, "ff_ext_corr_weight", ext_corr_nom, value_type=np.float32)
     
     return events
 
@@ -319,12 +321,23 @@ def ff_weight_setup(
     import correctionlib
     correctionlib.highlevel.Correction.__call__ = correctionlib.highlevel.Correction.evaluate
 
-    #from IPython import embed; embed()
     correction_set = correctionlib.CorrectionSet.from_file(
         bundle.files.tautau_ff.path,
     ) 
     self.ff_corrector = correction_set["fake_factors_fit"]
 
+    closure_correction_set = correctionlib.CorrectionSet.from_file(
+        bundle.files.tautau_ff_closure.path,
+    ) 
+    self.cls_corrector = closure_correction_set["closure_corrections_fit"]
+    
+    ## extrapolation correction on FF
+    #ext_correction_set = correctionlib.CorrectionSet.from_file(
+    #    bundle.files.tautau_ext_corr.path,
+    #)
+    #self.ext_corrector = ext_correction_set["extrapolation_correction"]
+
+    
     #correction_set_0 = correctionlib.CorrectionSet.from_file(
     #    bundle.files.tautau_ff0.path,
     #)
@@ -407,8 +420,8 @@ def met_recoil_corr(
     met_phi_corr = np.arctan2(met_y_corr, met_x_corr)    
     
     # Add the column to the events
-    events = set_ak_column(events, "PuppiMET.pt_pre_recoil", met_pt)
-    events = set_ak_column(events, "PuppiMET.phi_pre_recoil", met_phi)
+    #events = set_ak_column(events, "PuppiMET.pt_pre_recoil", met_pt)
+    #events = set_ak_column(events, "PuppiMET.phi_pre_recoil", met_phi)
 
     events = set_ak_column(events, "PuppiMET.pt", met_pt_corr)
     events = set_ak_column(events, "PuppiMET.phi", met_phi_corr)

@@ -316,7 +316,8 @@ def add_hist_hooks(config: od.Config) -> None:
         qcd_groups: dict[str, dict[str, od.Category]] = defaultdict(DotDict)
 
 
-        dms = ["tau1a1DM11", "tau1a1DM10", "tau1a1DM2", "tau1pi", "tau1rho"]  # Decay modes
+        #dms = ["tau1a1DM11", "tau1a1DM10", "tau1a1DM2", "tau1pi", "tau1rho"]  # Decay modes
+        dms = ["tau1a1DM10", "tau1a1DM2", "tau1pi", "tau1rho"]  # Decay modes
         njets = ["has0j", "has1j", "has2j"]  # Jet multiplicity
 
         # Loop over all categories and create a QCD group for each DM and Njet category
@@ -352,6 +353,8 @@ def add_hist_hooks(config: od.Config) -> None:
         mc_hist = sum(mc_hists[1:], mc_hists[0].copy()) # sum all MC histograms, the hist object here contains all categories
         data_hist = sum(data_hists[1:], data_hists[0].copy()) # sum all data histograms, the hist object here contains all categories
 
+        _hname = mc_hist.axes[2].name
+        
         for gidx, group_name in enumerate(complete_groups):
 
             group = qcd_groups[group_name]
@@ -410,10 +413,10 @@ def add_hist_hooks(config: od.Config) -> None:
             if not os.path.exists(path):
                 os.makedirs(path)
 
-            with open(f"{path}/fake_factors_{hname_noniso}_{group_name}.pkl", "wb") as f:
+            with open(f"{path}/{_hname}_{hname_noniso}_{group_name}.pkl", "wb") as f:
                 pickle.dump(ss_noniso_data_minus_mc_hist, f)
             
-            with open(f"{path}/fake_factors_{hname_iso}_{group_name}.pkl", "wb") as f:
+            with open(f"{path}/{_hname}_{hname_iso}_{group_name}.pkl", "wb") as f:
                 pickle.dump(ss_iso_data_minus_mc_hist, f)
             
 
@@ -715,13 +718,16 @@ def add_hist_hooks(config: od.Config) -> None:
         data_hist_incl = data_hist.copy().reset()
         os_iso_mc_incl = None
         os_iso_data_incl = None
-        path = f"{law.wlcg.WLCGFileSystem().base[0].split('root://eosuser.cern.ch')[-1]}/analysis_httcp/cf.PlotVariables1D/{config.campaign.name}/QCD"
+        #path = f"{law.wlcg.WLCGFileSystem().base[0].split('root://eosuser.cern.ch')[-1]}/analysis_httcp/cf.PlotVariables1D/{config.campaign.name}/QCD"
+        path = f"{law.wlcg.WLCGFileSystem().base[0].split('root://eosuser.cern.ch')[-1]}/analysis_httcp/cf.PlotVariables1D/{config.campaign.name}/FF_Closure"
         if not os.path.exists(path):
             os.makedirs(path)
         ratio_path = f"{path}/Ratio"
         if not os.path.exists(ratio_path):
             os.makedirs(ratio_path)
-                
+            
+        _hname = mc_hist.axes[2].name
+        
         for gidx, group_name in enumerate(complete_groups):
             group = qcd_groups[group_name]
             logger.info(f"Group name : {group_name}")
@@ -741,7 +747,7 @@ def add_hist_hooks(config: od.Config) -> None:
 
             ## DATA - MC of region C (FF are already apply to them)
             fake_hist = os_noniso_data - os_noniso_mc
-
+            
             # combine uncertainties and store values in bare arrays
             fake_hist_values = fake_hist()
             fake_hist_variances = fake_hist(sn.UP, sn.ALL, unc=True)**2
@@ -763,17 +769,58 @@ def add_hist_hooks(config: od.Config) -> None:
                     f"could not find index of bin on 'category' axis of qcd histogram {mc_hist} "
                     f"for category {group.os_iso}",
                 )
-            """
-            if type_extrapolation != "CD":
+
+            if type_extrapolation != "CD" and config.x.save_qcd == True:
                 # Save tne qcd histogram in a pickle file
                 hname = qcd_hist.axes[2].name
-                #path = "/eos/user/o/oponcet2/analysis/CP_dev/analysis_httcp/cf.PlotVariables1D/QCD"
-                # Ensure the folder exists
-                #if not os.path.exists(path):
-                #    os.makedirs(path)
-                with open(f"{path}/qcd_{hname}_{group_name}.pkl", "wb") as f:
-                    pickle.dump(qcd_hist, f)
+                ss_iso_mc  = hist_to_num(get_hist(mc_hist, "os_iso"), "os_iso_mc")
+                #ss_iso_all_mc = (ss_iso_mc + fake_hist)[:, None]
+                ss_iso_data = hist_to_num(get_hist(data_hist, "os_iso"), "os_iso_data")
 
+                ss_iso_data_minus_mc = (ss_iso_data - ss_iso_mc)[:, None]
+                ss_iso_fake_mc = fake_hist[:, None]
+
+                
+                # create histo for them
+                ss_iso_data_minus_mc_values = np.squeeze(np.nan_to_num(ss_iso_data_minus_mc()), axis=0) # get the values of the cat A
+                ss_iso_data_minus_mc_variances = ss_iso_data_minus_mc(sn.UP, sn.ALL, unc=True)**2
+                ss_iso_data_minus_mc_variances = ss_iso_data_minus_mc_variances[0]
+
+                ss_iso_fake_mc_values = np.squeeze(np.nan_to_num(ss_iso_fake_mc()), axis=0) # get the values of the cat B
+                ss_iso_fake_mc_variances = ss_iso_fake_mc(sn.UP, sn.ALL, unc=True)**2
+                ss_iso_fake_mc_variances = ss_iso_fake_mc_variances[0]
+
+                # guranty positive values 
+                neg_int_mask = ss_iso_data_minus_mc_values <= 0
+                ss_iso_data_minus_mc_values[neg_int_mask] = 1e-5
+                ss_iso_data_minus_mc_variances[neg_int_mask] = 0
+
+                neg_int_mask = ss_iso_fake_mc_values <= 0
+                ss_iso_fake_mc_values[neg_int_mask] = 1e-5
+                ss_iso_fake_mc_variances[neg_int_mask] = 0
+
+                # create a hist clone of the data_hist
+                ss_iso_data_minus_mc_hist = data_hist.copy()
+                ss_iso_fake_mc_hist = data_hist.copy()
+
+                # fill the ratio histogram with the values 
+                ss_iso_data_minus_mc_hist.view().value[0, ...] = ss_iso_data_minus_mc_values
+                ss_iso_data_minus_mc_hist.view().variance[0, ...] = ss_iso_data_minus_mc_variances
+                ss_iso_fake_mc_hist.view().value[0, ...] = ss_iso_fake_mc_values
+                ss_iso_fake_mc_hist.view().variance[0, ...] = ss_iso_fake_mc_variances
+                
+                hname_data    = "ss_iso_data_minus_mc_hist"
+                hname_fake_mc = "ss_iso_fake_hist"
+
+                with open(f"{path}/{_hname}_{hname_data}_{group_name}.pkl", "wb") as f:
+                    pickle.dump(ss_iso_data_minus_mc_hist, f)
+                    
+                with open(f"{path}/{_hname}_{hname_fake_mc}_{group_name}.pkl", "wb") as f:
+                    pickle.dump(ss_iso_fake_mc_hist, f)
+                
+                """
+                with open(f"{path}/AllMC_A_{hname}_{group_name}.pkl", "wb") as f:
+                    pickle.dump(qcd_hist, f)
                 # create a hist clone of the data_hist
                 ratio_hist = data_hist.copy()
 
@@ -817,12 +864,10 @@ def add_hist_hooks(config: od.Config) -> None:
                             f"could not find index of bin on 'category' axis of qcd histogram {mc_hist} "
                             f"for category {group.os_iso}",
                         )
-            
-                #path = f"{path}/Ratio"
                 # save the ratio in a pickle file
                 with open(f"{ratio_path}/ratio_{hname}_{group_name}_{group.os_iso.id}.pkl", "wb") as f:
                     pickle.dump(ratio_hist, f)
-            """        
+                """
         """
         if type_extrapolation != "CD":
             # Save the inclusive histograms
@@ -893,6 +938,7 @@ def add_hist_hooks(config: od.Config) -> None:
                "a1DM2_a1DM2","a1DM2_a1DM10",
                "a1DM10_a1DM10"]
         xgb_nodes = ["dy_node", "fake_node", "higgs_node"]
+        #xgb_nodes = ["dy_node", "fake_node", "higgs_node_bin_1", "higgs_node_bin_2", "higgs_node_bin_3", "higgs_node_bin_4", "higgs_node_bin_5"]
 
         # Loop over all categories and create a QCD group for each DM and Njet category
         for dm in dms:
@@ -938,7 +984,8 @@ def add_hist_hooks(config: od.Config) -> None:
         data_hist = sum(data_hists[1:], data_hists[0].copy())
         
         # Start by copying the data hist and reset it, then fill it at specific category slices
-        hists[qcd_proc] = qcd_hist = data_hist.copy().reset()
+        #hists[qcd_proc] = qcd_hist = data_hist.copy().reset()
+        hists[qcd_proc] = qcd_hist = mc_hist.copy().reset()
         #from IPython import embed; embed()
         mc_hist_incl = mc_hist.copy().reset()
         data_hist_incl = data_hist.copy().reset()
@@ -1152,7 +1199,25 @@ def add_hist_hooks(config: od.Config) -> None:
         return hists
 
     """
+
     
+    def blind_bins(task, hists, blinding_threshold=0.05):
+        from columnflow.plotting.plot_util import blind_sensitive_bins
+        
+        out_hists = {}
+        for config_inst, hist in hists.items():
+            # unify histogram shapes
+            hist_list = list(hist.values())
+            zero_hist = sum([h * 0 for h in hist_list[1:]], hist_list[0] * 0)
+            hists = {proc: zero_hist + h for proc, h in hists.items()}
+            
+            # apply blinding if s/sqrt(b) > blinding_threshold
+            # NOTE: this does not yet work for Multi-dim histograms that include categories as is the case here....
+            out_hists[config_inst] = blind_sensitive_bins(
+                hists, config_inst, threshold=blinding_threshold, remove_mc=True,
+            )
+        return out_hists
+
 
     
     config.x.hist_hooks = {
@@ -1161,4 +1226,5 @@ def add_hist_hooks(config: od.Config) -> None:
         "produce_fake_factor_DM0": produce_fake_factor_DM0,
         "extrapolate_fake": extrapolate_fake,
         "extrapolate_fake_classifier_tautau": extrapolate_fake_classifier_tautau,
+        "blind_bins": blind_bins,
     }

@@ -154,7 +154,7 @@ def hcand_features(
     # ################## #
     logger.info(" >>>--- FastMTT-Wiktors --->>> [Not as fast as you think]")
     events = self[apply_fastMTT](events, run_fmtt=self.config_inst.x.enable_fastMTT, **kwargs)
-    
+
     # ########################### #
     # -------- For PhiCP -------- #
     # ########################### #
@@ -167,7 +167,6 @@ def hcand_features(
             events, P4_gen_dict = self[reArrangeGenDecayProducts](events)
             events = self[ProduceGenPhiCP](events, P4_gen_dict) 
             #events = self[ProduceGenCosPsi](events, P4_gen_dict) # for CosPsi only
-
     # ########################### #
     
     return events
@@ -205,7 +204,7 @@ def hcand_features(
         category_ids,
         build_abcd_masks,
         "channel_id",
-        #ff_weight,
+        ff_weight,
         "process_id",
         classify_events,
     },
@@ -240,7 +239,7 @@ def hcand_features(
         #"trigger_ids",
         category_ids,
         build_abcd_masks,
-        #ff_weight,
+        ff_weight,
         "process_id",
         classify_events,        
     },
@@ -252,10 +251,14 @@ def main(self: Producer, events: ak.Array, **kwargs) -> ak.Array:
     events = self[attach_coffea_behavior](events, **kwargs)
     # deterministic seeds
     ##events = self[deterministic_seeds](events, **kwargs)
-    if self.dataset_inst.is_mc:
+    
+    #if self.dataset_inst.is_mc:
+    if self.dataset_inst.has_tag("is_dy") or self.dataset_inst.has_tag("is_w") or self.dataset_inst.has_tag("is_signal"):
         events = self[met_recoil_corr](events, **kwargs)
+        #else:
+        #logger.warning("No MET Recoil as dataset doesnot have any of the is_dy, is_w or is_signal tag")
 
-    events = self[hcand_features](events, **kwargs)       
+    events = self[hcand_features](events, **kwargs)
 
     logger.info(" >>>--- Evaluate Classifier Models (IC) --->>> [In extra_weights.py and processes.py]")
     events = self[classify_events](events, **kwargs)
@@ -335,17 +338,19 @@ def main(self: Producer, events: ak.Array, **kwargs) -> ak.Array:
 
         #from IPython import embed; embed()
         #processes = self.dataset_inst.processes.names()
-        """
-        if self.dataset_inst.has_tag("is_dy"):
-            logger.warning(f"splitting Drell-Yan dataset <{self.dataset_inst.name()}>")
-            events = self[split_dy](events,**kwargs)
-        """
+        
+        #if self.dataset_inst.has_tag("is_dy"):
+        #    logger.warning(f"splitting Drell-Yan dataset <{self.dataset_inst.name}>")
+        #    events = self[split_dy](events,**kwargs)
+
         # top pt weight
         if self.has_dep(top_pt_weight):
             events = self[top_pt_weight](events, **kwargs)
-    """
+        else:
+            logger.warning(f"No top pt reweihting for <{self.dataset_inst.name}> dataset")
+
     events = self[ff_weight](events, **kwargs)        
-    """
+
     # features
     events = self[hcand_mass](events, **kwargs)
     # events = self[mT](events, **kwargs)

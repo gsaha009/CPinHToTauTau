@@ -192,14 +192,14 @@ def add_highlevel_features(cfg: od.Config) -> None:
         null_value=EMPTY_FLOAT,
         binning=(50, 0,100),
         unit="GeV",
-        x_title=r"MET $p_T$",
+        x_title=r"PuppiMET p$_{T}$",
     )
     cfg.add_variable(
         name="puppi_met_phi",
         expression="PuppiMET.phi",
         null_value=EMPTY_FLOAT,
         binning=(32, -3.2, 3.2),
-        x_title=r"MET $\phi$",
+        x_title=r"PuppiMET $\phi$",
     )
     cfg.add_variable(
         name="hcand_mass",
@@ -214,7 +214,7 @@ def add_highlevel_features(cfg: od.Config) -> None:
         name="bdt_score_dy",
         expression="classifier_score[:,0]",
         null_value=EMPTY_FLOAT,
-        binning=(50, 0.0, 1.0),
+        binning=(25, 0.0, 1.0),
         unit="",
         x_title="BDT Score (DYTau prob)",
     )
@@ -222,7 +222,15 @@ def add_highlevel_features(cfg: od.Config) -> None:
         name="bdt_score_higgs",
         expression="classifier_score[:,1]",
         null_value=EMPTY_FLOAT,
-        binning=(50, 0.0, 1.0),
+        binning=(25, 0.0, 1.0),
+        unit="",
+        x_title="BDT Score (Higgs prob)",
+    )
+    cfg.add_variable(
+        name="bdt_score_higgs_binvar",
+        expression="classifier_score[:,1]",
+        null_value=EMPTY_FLOAT,
+        binning=[0., 0.55, 0.65, 0.80, 0.90, 1.0],
         unit="",
         x_title="BDT Score (Higgs prob)",
     )
@@ -230,7 +238,7 @@ def add_highlevel_features(cfg: od.Config) -> None:
         name="bdt_score_fake",
         expression="classifier_score[:,2]",
         null_value=EMPTY_FLOAT,
-        binning=(50, 0.0, 1.0),
+        binning=(25, 0.0, 1.0),
         unit="",
         x_title="BDT Score (Fake prob)",
     )
@@ -290,7 +298,8 @@ def add_hcand_features(cfg: od.Config) -> None:
             null_value=EMPTY_FLOAT,
             binning=(40, 0., 200.),
             unit="GeV",
-            x_title=f"hcand[{i+1}]" + r" $p_{T}$",
+            #x_title=f"hcand[{i+1}]" + r" $p_{T}$",
+            x_title=r"Leading tau p$_{T}$" if i == 0 else r"Subleading tau p$_{T}$",
         )
         cfg.add_variable(
             name=f"hcand_{i+1}_pt_MediumWP_binvar",
@@ -322,14 +331,16 @@ def add_hcand_features(cfg: od.Config) -> None:
             null_value=EMPTY_FLOAT,
             binning=(40, 0., 200.),
             unit="GeV",
-            x_title=f"hcand[{i+1}]" + r" $p_{T}$ (fastMTT)",
+            x_title=r"Leading tau p$_{T}$ (fastMTT)" if i == 0 else r"Subleading tau p$_{T}$ (fastMTT)",  
+            #x_title=f"hcand[{i+1}]" + r" $p_{T}$ (fastMTT)",
         )
         cfg.add_variable(
             name=f"hcand_{i+1}_phi",
             expression=f"hcand.phi[:,{i}]",
             null_value=EMPTY_FLOAT,
             binning=(32, -3.2, 3.2),
-            x_title=f"hcand[{i+1}]" + r" $\phi$",
+            x_title=r"Leading tau $\phi$" if i == 0 else r"Subleading tau $\phi$",
+            #x_title=f"hcand[{i+1}]" + r" $\phi$",
         )
         cfg.add_variable(
             name=f"hcand_{i+1}_phi_fastMTT",
@@ -343,7 +354,8 @@ def add_hcand_features(cfg: od.Config) -> None:
             expression=f"hcand.eta[:,{i}]",
             null_value=EMPTY_FLOAT,
             binning=(25, -2.5, 2.5),
-            x_title=f"hcand[{i+1}]" + r" $\eta$",
+            x_title=r"Leading tau $\eta$" if i == 0 else r"Subleading tau $\eta$",
+            #x_title=f"hcand[{i+1}]" + r" $\eta$",
         )
         cfg.add_variable(
             name=f"hcand_{i+1}_eta_fastMTT",
@@ -358,7 +370,8 @@ def add_hcand_features(cfg: od.Config) -> None:
             null_value=EMPTY_FLOAT,
             binning=(30, 0., 3.0),
             unit="GeV",
-            x_title=f"hcand[{i+1}]" + " mass",
+            x_title=r"Leading tau mass" if i == 0 else r"Subleading tau mass",
+            #x_title=f"hcand[{i+1}]" + " mass",
         )
         cfg.add_variable(
             name=f"hcand_{i+1}_mass_fastMTT",
@@ -373,7 +386,8 @@ def add_hcand_features(cfg: od.Config) -> None:
             expression=f"hcand.decayMode[:,{i}]",
             #null_value=EMPTY_INT,
             binning=(12, -0.5, 11.5),
-            x_title=f"hcand[{i+1}]" + r" $DM (PNet)$",
+            x_title=r"Leading tau DM" if i == 0 else r"Subleading tau DM",            
+            #x_title=f"hcand[{i+1}]" + r" $DM (PNet)$",
         )
         cfg.add_variable(
             name=f"hcand_{i+1}_IPx",
@@ -425,7 +439,7 @@ def add_hcand_features(cfg: od.Config) -> None:
         binning=(50, 0.0, 400.0),
         #binning=(50, 0.0, 200.0),
         unit="GeV",
-        x_title=r"$visible mass$",
+        x_title=r"$\tau_{h}\tau_{h}$ visible mass",
     )
     cfg.add_variable(
         name="hcand_invm_1bin",
@@ -447,9 +461,9 @@ def add_hcand_features(cfg: od.Config) -> None:
         name="hcand_invm_fastMTT",
         expression="hcand_invm_fastMTT",
         null_value=EMPTY_FLOAT,
-        binning=(40, 0.0, 200.0),
+        binning=(50, 0.0, 400.0),
         unit="GeV",
-        x_title=r"$invariant mass (fastMTT)$",
+        x_title=r"$\tau\tau$ invariant mass (fastMTT)",
     )
     cfg.add_variable(
         name="hcand_invm_fastMTT_limit",
@@ -464,7 +478,7 @@ def add_hcand_features(cfg: od.Config) -> None:
         expression="hcand_dr",
         null_value=EMPTY_FLOAT,
         binning=(40, 0.0, 5.0),
-        x_title=r"$\Delta R(h1,h2)$",
+        x_title=r"$\Delta R (\tau_{h}^{1},\tau_{h}^{2})$",
     )
     cfg.add_variable(
         name="hcand_dphi",
@@ -535,7 +549,7 @@ def add_hcand_features(cfg: od.Config) -> None:
         expression="PhiCP_DPDP",
         null_value=EMPTY_FLOAT,
         binning=(int(2*np.pi/(0.1*np.pi)), 0, 2*np.pi),
-        x_title=r"$\Phi_{CP}^{NP-NP}$ (rad)",
+        x_title=r"$\Phi_{CP}^{DP-DP}$ (rad)",
     )
     cfg.add_variable(
         name="PhiCP_PVPV",
@@ -549,7 +563,7 @@ def add_hcand_features(cfg: od.Config) -> None:
         expression="PhiCP_IPDP",
         null_value=EMPTY_FLOAT,
         binning=(int(2*np.pi/(0.1*np.pi)), 0, 2*np.pi),
-        x_title=r"$\Phi_{CP}^{IP-NP}$ (rad)",
+        x_title=r"$\Phi_{CP}^{IP-DP}$ (rad)",
     )
     cfg.add_variable(
         name="PhiCP_IPPV",
@@ -571,7 +585,7 @@ def add_hcand_features(cfg: od.Config) -> None:
         expression="PhiCPGen_DPDP",
         null_value=EMPTY_FLOAT,
         binning=(int(2*np.pi/(0.1*np.pi)), 0, 2*np.pi),
-        x_title=r"$\Phi_{CP}^{NP-NP}$ (rad) [Gen level]",
+        x_title=r"$\Phi_{CP}^{DP-DP}$ (rad) [Gen level]",
     )
     cfg.add_variable(
         name="PhiCPGen_PVPV",
@@ -585,7 +599,7 @@ def add_hcand_features(cfg: od.Config) -> None:
         expression="PhiCPGen_IPDP",
         null_value=EMPTY_FLOAT,
         binning=(int(2*np.pi/(0.1*np.pi)), 0, 2*np.pi),
-        x_title=r"$\Phi_{CP}^{IP-NP}$ (rad) [Gen level]",
+        x_title=r"$\Phi_{CP}^{IP-DP}$ (rad) [Gen level]",
     )
     cfg.add_variable(
         name="PhiCPGen_IPPV",

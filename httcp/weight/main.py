@@ -57,7 +57,7 @@ def main_init(self: WeightProducer) -> None:
             #if (weight_name != "ff_weight" or weight_name != "closure_weight") and self.dataset_inst.is_data:    
             #    continue
             if self.dataset_inst.is_data:
-                if not weight_name in ["ff_weight","ff_ext_corr_weight"]:
+                if not weight_name in ["ff_weight","ff_cls_corr_weight","ff_ext_corr_weight"]:
                     continue
 
             # skip pdf weights for samples that dont have lhe weight

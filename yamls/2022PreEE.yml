@@ -5,23 +5,23 @@ FULL: &full_
   era     : 2022
   postfix : PreEE
   wrapper : true
-  workers : 10
+  workers : 8
   tasks_per_job  : 2
 
   args: &args_
     config    : run3_2022_preEE_nano_cp_tau_v14_nanoprod_2024_v2
-    workflow  : htcondor
+    workflow  : local
     branch    : -1
     # if dummy, version will be set automatically 
-    version   : dummy #Run3_2022PreEE_full_20250808_DY_NLO_STITCH_YES
+    version   : Run3_2022PreEE_full_20250809_215101
 
     datasets  : &datasets_
       ## == data ==
       - data_tau_C
       - data_tau_D
-      - data_mu_C
-      - data_mu_D
-      - data_single_mu_C
+      #- data_mu_C
+      #- data_mu_D
+      #- data_single_mu_C
       #- data_e_C
       #- data_e_D
       ## == wj ==
@@ -72,8 +72,8 @@ FULL: &full_
       - st_tw_tb_sl
       - st_tw_tb_dl
       - st_tw_tb_fh
-      - st_schannel_t
-      - st_schannel_tbar
+      #- st_schannel_t
+      #- st_schannel_tbar
       ## == vv ==
       - ww
       - wz
